@@ -2,6 +2,8 @@
 src/gui
 src/*.o
 .class
+.properties
+.mf
 
 target/
 bin/
