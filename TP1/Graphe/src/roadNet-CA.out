@@ -1,0 +1,21 @@
+2766607 doublons ont ete supprimes
+Nombre de sommets : 1971281
+Nombre d'aretes : 2766607
+Sommet de degré max (de numéro minimal) : 562818
+Sa liste d'adjacence (ligne suivante) :
+562769 562823 562770 562826 562771 562824 562810 562833 562817 562825 562821 562827 
+Ditribution des degrés : 
+0 6075
+1 321027
+2 204754
+3 971276
+4 454208
+5 11847
+6 1917
+7 143
+8 30
+9 1
+10 2
+11 0
+12 1
+Mémoire allouée : 297112912 octets
