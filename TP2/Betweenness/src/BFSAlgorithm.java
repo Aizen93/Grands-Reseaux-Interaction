@@ -11,6 +11,7 @@ import java.util.Vector;
 public class BFSAlgorithm {
     int [][] distance_matrice;
     int [][] npcc;
+    float []bet;
     Graphe graphe;
         
         
@@ -62,14 +63,65 @@ public class BFSAlgorithm {
         return distance.get(v); 
     } 
     
-    void addDistance() {
-        distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
-    	for (int i = 0; i < graphe.getSommets().size(); i++) {
-            for(int j = 0; j < i+1; j++) {
-                distance_matrice[i][j] =  minEdgeBFS(i, j, graphe.getSommets().size());
-                System.out.print(distance_matrice[i][j]+" ");
+    void addBet() {
+    	int size = graphe.getSommets().size();
+    	int n = (size-2)*(size-3);
+        bet = new float[size];
+        //bet(v)
+    	for(int v = 1; v<size; v++) {
+            int sum=0;
+            
+        		//bet(s,v,t) = npcc(s,v,t) / npcc(s,t)
+        		//npcc(s,v,t) = npcc(s,v)*npcc(v,t)
+        		for (int s = 1; s < size; s++) {
+                    for(int t = 1;t < s; t++) {
+                    	if(s!=v && s!=t && v!=t) {
+                        	int svt = (npcc[s][v])*(npcc[v][t]);
+                        	if( (npcc[s][v]!=0) && (npcc[v][t]!=0) && (npcc[s][t]!=0) ) sum += svt / npcc[s][t];
+                    	}
+                    }
+        		}
+            
+
+            bet[v] = (float)sum / (float)n;
+            System.out.println(v+" : "+bet[v]);
+    	}
+    }
+    
+    void addnpcc() {
+    	int size = graphe.getSommets().size();
+    	int dist;
+        npcc = new int[size][size];
+    	for (int i = 1; i < size; i++) {
+            for(int j = 1; j < i; j++) {
+                //distance_matrice[i][j] =  ;
+            	//dist = minEdgeBFS(i, j, size);
+            	if(distance_matrice[i][j]>1) {
+                    for(int k = 1; k < size; k++) {
+                    	if(k!=i && k!=j) {
+                    		
+                        	int tmp = distance_matrice[i][k] + distance_matrice[k][j];
+                        	if( tmp ==distance_matrice[i][j])  npcc[i][j]++;
+                    	}
+
+                    }
+            	}else {
+            		npcc[i][j]++;
+            	}
+                System.out.print(npcc[i][j]+" ");
             }
             System.out.println();
         }
     }
+    
+    void addDistance() {
+    distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
+		for (int i = 1; i < graphe.getSommets().size(); i++) {
+	        for(int j = 1; j < i+1; j++) {
+	            distance_matrice[i][j] =  minEdgeBFS(i, j, graphe.getSommets().size());
+	            System.out.print(distance_matrice[i][j]+" ");
+	        }
+	        System.out.println();
+	    }
+}
 }

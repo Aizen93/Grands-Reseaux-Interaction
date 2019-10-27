@@ -69,6 +69,8 @@ public class Parser {
     public void matriceDistance(){
         BFSAlgorithm bfs = new BFSAlgorithm(graphe);
         bfs.addDistance();
+        bfs.addnpcc();
+        bfs.addBet();
     }
     
     public void printResult(){
