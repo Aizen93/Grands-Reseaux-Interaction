@@ -34,7 +34,7 @@ public class Parser {
         try {
             while ((line = br.readLine()) != null) {
                 if (line.charAt(0) != '#') {
-                    graphe.stringToTabInt(line, tmp);
+                    graphe.splitAndParseInt(line, tmp);
                     try {
                         graphe.addSommet(tmp[0], tmp[1]);
                     } catch (Exception e) {

@@ -46,6 +46,11 @@ public class Sommet {
         return adjacence;
     }
     
+    /**
+     * Cherche si un sommet existe deja dans la liste d'adjacence ou pas
+     * @param n
+     * @return un boolean
+     */
     public boolean contient(int n) {
         for (int i = 0; i < adjacence.size(); i++) {
             if (adjacence.get(i).getId() == n)
