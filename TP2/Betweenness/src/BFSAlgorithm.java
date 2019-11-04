@@ -11,129 +11,127 @@ import java.util.Vector;
  * @author Oussama, Lilya
  */
 public class BFSAlgorithm {
-    int [][] distance_matrice;
+	//HashMap<Integer, int[]> distance_matrice;
+	int [][] distance_matrice;
     int [][] npcc;
     float []bet;
     Graphe graphe;
         
         
     public BFSAlgorithm(Graphe graphe) {
+    	int size = graphe.getSommets().size();
         this.graphe = graphe;
+        /*for(int i = 0; i < size; i++) {
+        	distance_matrice[i] = new Integer[size];
+        	npcc[i] = new Integer[size];
+        }*/
+
     }
     
     public void BFS (int u) {    	
-    	HashMap <Integer, String> color = new HashMap<Integer, String>();
-    	for (int i = 0; i<=graphe.getNbr_sommet(); i++)  color.put(i, "blanc");
-    	
+    	String[] color = new String[graphe.getSommets().size()];
     	Deque <Integer> file = new LinkedList<>();
+    	for (int i = 0; i<graphe.getSommets().size(); i++)  {
+    		color[i] =  "blanc";
+    	}
     	file.add(u);
-    	color.replace(u, "gris");
-    	int s;
-    	
+    	color[u] = "gris";
+    	int s, dist;
     	while(!file.isEmpty()) {
     		s = file.removeFirst();
     		System.out.println("sommet courant : " + s);
+			npcc[u][s] = 0;
+			npcc[s][u] = 0;
     		for(Sommet tmp : graphe.getSommetByID(s).getAdjacence()) {
-    			String col = color.get(tmp.getId());
-    			if(! (col.equals("noir"))) {
+    			String col = color[tmp.getId()];
+    			if(col.equals("blanc")) {
     				//si première visite ajouter à la file et changer la couleur
-    				if(color.get(tmp.getId()).equals("blanc")) {
-    					color.replace(tmp.getId(), "gris");
-        					distance_matrice[u][tmp.getId()] = distance_matrice[u][s] + 1;
+    				if(color[tmp.getId()].equals("blanc")) {
+    					color[tmp.getId()] =  "gris";
+        				distance_matrice[u][tmp.getId()] = distance_matrice[u][s] + 1;
+        				distance_matrice[tmp.getId()][u] = distance_matrice[u][s] + 1;
     					file.add(tmp.getId());
     				}
     			}
-    			if(s == u) {
-    				distance_matrice[u][tmp.getId()] = 1;
-    				npcc[u][tmp.getId()] = 1;
-    			}
-    			else if(tmp.getId() != s && tmp.getId() != u) {
-    				int dist = distance_matrice[u][s] + npcc[s][tmp.getId()];
-    				if(tmp.getAdjacence().size() == 1) npcc[u][tmp.getId()] = npcc[u][s];
-    				if(distance_matrice[u][tmp.getId()] == 1) npcc[u][tmp.getId()] = 1;
-    					
-    				else if(distance_matrice[u][tmp.getId()] == dist) npcc[u][tmp.getId()] += 1;
-    				else  npcc[u][tmp.getId()] += npcc[u][s];
+    			if(tmp.getId() != s && tmp.getId() != u && u!=s) {
+    				dist = distance_matrice[u][tmp.getId()] + distance_matrice[tmp.getId()][s];
+    				System.out.println("**********Dist : "+dist);
+    				//si dist = 1 alors npcc = 1
+    				if(distance_matrice[u][s] == 1) {
+    					npcc[u][s] = 1;
+    					npcc[s][u] = 1;
+    				}
+    				if(distance_matrice[u][tmp.getId()] == 1) {
+    					npcc[u][tmp.getId()] = 1;
+    					npcc[tmp.getId()][u] = 1;
+    				}
+    				if(distance_matrice[u][s] == dist) {
+    					npcc[u][s] += npcc[u][tmp.getId()];
+    					npcc[s][u] += npcc[u][tmp.getId()];
+    				}
     			}
     		}
-    		color.replace(s, "noir");
+    		color[s] = "noir";
     	}
     }
-        
-     
     
+    //bet(s,v,t) = npcc(s,v,t) / npcc(s,t)
+ 	//npcc(s,v,t) = npcc(s,v)*npcc(v,t)
+     float bet_svt(int s, int v, int t) {
+    	 float svt = 0;
+    	 if(npcc[s][t] == 0) {
+    		 System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
+    		 return svt;
+    	 }
+    	 if(distance_matrice[s][t] == distance_matrice[s][v]+distance_matrice[v][t]) {
+    		 float npcc_svt = npcc[s][v]*npcc[v][t];
+        	 svt = npcc_svt / npcc[s][t];
+    	 }
+		 System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
+    	 return svt;
+     }
+
     void addBet() {
     	int size = graphe.getSommets().size();
-    	int n = (size-2)*(size-3);
-        bet = new float[size];
-        //bet(v)
-    	for(int v = 1; v<size; v++) {
-            int sum=0;
-            
-        		//bet(s,v,t) = npcc(s,v,t) / npcc(s,t)
-        		//npcc(s,v,t) = npcc(s,v)*npcc(v,t)
-        		for (int s = 1; s < size; s++) {
-                    for(int t = 1;t < s; t++) {
-                    	if(s!=v && s!=t && v!=t) {
-                        	int svt = (npcc[s][v])*(npcc[v][t]);
-                        	if( (npcc[s][v]!=0) && (npcc[v][t]!=0) && (npcc[s][t]!=0) ) sum += svt / npcc[s][t];
-                    	}
-                    }
+    	
+    	float n = (float)((size-1)*(size-2));
+    	float bet = 1/n;
+    	for(int v = 0; v<size; v++) {
+    		float sum=0;
+        	for (int s = 0; s < size - 1; s++) {
+        		for(int t = 0;t < size; t++) {
+        			if(s!=v && s!=t && v!=t) {
+                		sum += bet_svt(s,v,t);
+                   	}
         		}
-            
-
-            bet[v] = (float)sum / (float)n;
-            System.out.println(v+" : "+bet[v]);
+        	}
+    		System.out.println("*****sum = "+sum);
+    		System.out.println("*****n = "+n);
+        	bet =(float)( bet * sum);
+        	System.out.println(v+" : "+ bet);
     	}
     }
-    
-    void addnpcc() {
-    	int size = graphe.getSommets().size();
-    	int dist;
-        npcc = new int[size][size];
-    	for (int i = 1; i < size; i++) {
-            for(int j = 1; j < i; j++) {
-                //distance_matrice[i][j] =  ;
-            	//dist = minEdgeBFS(i, j, size);
-            	if(distance_matrice[i][j]>1) {
-                    for(int k = 1; k < size; k++) {
-                    	if(k!=i && k!=j) {
-                    		
-                        	int tmp = distance_matrice[i][k] + distance_matrice[k][j];
-                        	if( tmp ==distance_matrice[i][j])  npcc[i][j]++;
-                    	}
 
-                    }
-            	}else {
-            		npcc[i][j]++;
-            	}
-                System.out.print(npcc[i][j]+" ");
-            }
-            System.out.println();
-        }
-    }
-    
     void addDistance() {
-    	System.out.println("Dans addDistance");
-    distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
+    System.out.println("Dans addDistance");
+   distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
     npcc = new int[graphe.getSommets().size()][graphe.getSommets().size()];
-
-		for (int i = 0; i <= graphe.getNbr_sommet(); i++) {
+	for (int i = 0; i < npcc.length; i++) {
 			System.out.println("BFS sur : "+i);
 			BFS(i);
-	    }
-		System.out.println("*********Matrice des distances*************");
-		for(int i = 0; i<=graphe.getNbr_sommet(); i++) {
+	 }
+	System.out.println("*********Matrice des distances*************");
+		for(int i = 0; i<distance_matrice.length; i++) {
 	       // System.out.println("col "+i+":");
-			for(int j= 0; j<=graphe.getNbr_sommet(); j++) {
+			for(int j= 0; j<distance_matrice[i].length; j++) {
 	            System.out.print(distance_matrice[i][j]+" ");
 			}
 	        System.out.println();
 		}
 		System.out.println("*********Matrice des npcc*************");
-		for(int i = 0; i<=graphe.getNbr_sommet(); i++) {
+		for(int i = 0; i<npcc.length; i++) {
 	       // System.out.println("col "+i+":");
-			for(int j= 0; j<=graphe.getNbr_sommet(); j++) {
+			for(int j= 0; j<npcc[i].length; j++) {
 	            System.out.print(npcc[i][j]+" ");
 			}
 	        System.out.println();

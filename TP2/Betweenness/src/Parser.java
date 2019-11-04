@@ -70,7 +70,7 @@ public class Parser {
         BFSAlgorithm bfs = new BFSAlgorithm(graphe);
         bfs.addDistance();
         //bfs.addnpcc();
-        //bfs.addBet();
+        bfs.addBet();
     }
     
     public void printResult(){
