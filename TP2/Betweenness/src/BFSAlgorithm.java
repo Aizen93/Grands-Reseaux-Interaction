@@ -80,14 +80,14 @@ public class BFSAlgorithm {
      float bet_svt(int s, int v, int t) {
     	 float svt = 0;
     	 if(npcc[s][t] == 0) {
-    		 System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
+    		 //System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
     		 return svt;
     	 }
     	 if(distance_matrice[s][t] == distance_matrice[s][v]+distance_matrice[v][t]) {
     		 float npcc_svt = npcc[s][v]*npcc[v][t];
         	 svt = npcc_svt / npcc[s][t];
     	 }
-		 System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
+		 //System.out.println("-------bet-svt "+s+","+v+","+t+" : "+svt);
     	 return svt;
      }
 
@@ -95,19 +95,19 @@ public class BFSAlgorithm {
     	int size = graphe.getSommets().size();
     	
     	float n = (float)((size-1)*(size-2));
-    	float bet = 1/n;
+    	float bet = 0;
     	for(int v = 0; v<size; v++) {
     		float sum=0;
-        	for (int s = 0; s < size - 1; s++) {
+        	for (int s = 0; s < size; s++) {
         		for(int t = 0;t < size; t++) {
         			if(s!=v && s!=t && v!=t) {
                 		sum += bet_svt(s,v,t);
                    	}
         		}
         	}
-    		System.out.println("*****sum = "+sum);
-    		System.out.println("*****n = "+n);
-        	bet =(float)( bet * sum);
+    		//System.out.println("*****sum = "+sum);
+    		//System.out.println("*****n = "+n);
+        	bet =(float)(sum)/n;
         	System.out.println(v+" : "+ bet);
     	}
     }
