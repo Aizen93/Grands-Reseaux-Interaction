@@ -15,7 +15,7 @@ public class Betweenness {
         this.graphe = graphe;
     }
     
-    public void BFS (int u) {    	
+    public void addnpcc(int u) {
     	String[] color = new String[graphe.getSommets().size()];
     	Deque<Integer> file = new LinkedList<>();
     	for(int i = 0; i < graphe.getSommets().size(); i++)  {
@@ -35,8 +35,6 @@ public class Betweenness {
                     //si première visite ajouter à la file et changer la couleur
                     if(color[tmp.getId()].equals("blanc")) {
                         color[tmp.getId()] =  "gris";
-                        distance_matrice[u][tmp.getId()] = distance_matrice[u][s] + 1;
-                        distance_matrice[tmp.getId()][u] = distance_matrice[u][s] + 1;
                         file.add(tmp.getId());
                     }
                 }
@@ -55,6 +53,34 @@ public class Betweenness {
                     if(distance_matrice[u][s] == dist) {
                         npcc[u][s] += npcc[u][tmp.getId()];
                         npcc[s][u] += npcc[u][tmp.getId()];
+                    }
+                }
+            }
+            color[s] = "noir";
+    	}
+    }
+    
+    public void BFS (int u) {    	
+    	String[] color = new String[graphe.getSommets().size()];
+    	Deque<Integer> file = new LinkedList<>();
+    	for(int i = 0; i < graphe.getSommets().size(); i++)  {
+            color[i] =  "blanc";
+    	}
+    	file.add(u);
+    	color[u] = "gris";
+    	int s, dist;
+    	while(!file.isEmpty()) {
+            s = file.removeFirst();
+            //System.out.println("sommet courant : " + s);
+            for(Sommet tmp : graphe.getSommetByID(s).getAdjacence()) {
+                String col = color[tmp.getId()];
+                if(col.equals("blanc")) {
+                    //si première visite ajouter à la file et changer la couleur
+                    if(color[tmp.getId()].equals("blanc")) {
+                        color[tmp.getId()] =  "gris";
+                        distance_matrice[u][tmp.getId()] = distance_matrice[u][s] + 1;
+                        distance_matrice[tmp.getId()][u] = distance_matrice[u][s] + 1;
+                        file.add(tmp.getId());
                     }
                 }
             }
@@ -122,9 +148,12 @@ public class Betweenness {
         System.out.println("Liste Betweenness : ");
         distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
         npcc = new int[graphe.getSommets().size()][graphe.getSommets().size()];
-	for(int i = 0; i < npcc.length; i++) {
+	for(int i = 0; i < distance_matrice.length; i++) {
             BFS(i);
 	 }
+	for(int i = 0; i < npcc.length; i++) {
+		addnpcc(i);
+	}
 	/*System.out.println("*********Matrice des distances*************");
         for(int i = 0; i<distance_matrice.length; i++) {
             // System.out.println("col "+i+":");
