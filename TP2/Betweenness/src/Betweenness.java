@@ -5,13 +5,13 @@ import java.util.LinkedList;
  *
  * @author Oussama, Lilya
  */
-public class BFSAlgorithm {
+public class Betweenness {
     int [][] distance_matrice;
     int [][] npcc;
     Graphe graphe;
         
         
-    public BFSAlgorithm(Graphe graphe) {
+    public Betweenness(Graphe graphe) {
         this.graphe = graphe;
     }
     
@@ -74,7 +74,7 @@ public class BFSAlgorithm {
         return svt;
     }
     
-    void addBet2(int[] tab){
+    public void addBet2(int[] tab){
         int size = tab.length;
     	
     	double n = (size-1)*(size-2);
@@ -85,6 +85,7 @@ public class BFSAlgorithm {
                 for (int s = 0; s < size; s++) {
                     for(int t = 0;t < size; t++) {
                         if(s!=tab[v] && s!=t && tab[v]!=t) {
+                            System.out.println(tab[v]+"******");
                             sum += bet_svt(s,tab[v],t);
                         }   
                     }
@@ -97,7 +98,7 @@ public class BFSAlgorithm {
         }
     }
     
-    void addBet() {
+    public void addBet() {
     	int size = graphe.getSommets().size();
     	
     	double n = (size-1)*(size-2);
@@ -116,29 +117,29 @@ public class BFSAlgorithm {
     	}
     }
     
-    void addDistance(){
-        System.out.println("Liste Betwenness : ");
+    public void calculDistanceEtNPCC(){
+        System.out.println("_____________________________");
+        System.out.println("Liste Betweenness : ");
         distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
         npcc = new int[graphe.getSommets().size()][graphe.getSommets().size()];
 	for(int i = 0; i < npcc.length; i++) {
-            //System.out.println("BFS sur : "+i);
             BFS(i);
 	 }
 	/*System.out.println("*********Matrice des distances*************");
         for(int i = 0; i<distance_matrice.length; i++) {
-       // System.out.println("col "+i+":");
-                for(int j= 0; j<distance_matrice[i].length; j++) {
-            //System.out.print(distance_matrice[i][j]+" ");
-                }
-        System.out.println();
+            // System.out.println("col "+i+":");
+            for(int j= 0; j<distance_matrice[i].length; j++) {
+                //System.out.print(distance_matrice[i][j]+" ");
+            }
+            System.out.println();
         }
         System.out.println("*********Matrice des npcc*************");
         for(int i = 0; i<npcc.length; i++) {
-       // System.out.println("col "+i+":");
-                for(int j= 0; j<npcc[i].length; j++) {
-            //System.out.print(npcc[i][j]+" ");
-                }
-        //System.out.println();
+            // System.out.println("col "+i+":");
+            for(int j= 0; j<npcc[i].length; j++) {
+                //System.out.print(npcc[i][j]+" ");
+            }
+            //System.out.println();
         }*/
     }
 }

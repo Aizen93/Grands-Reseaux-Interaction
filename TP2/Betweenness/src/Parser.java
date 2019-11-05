@@ -20,7 +20,7 @@ public class Parser {
         BufferedReader br;
         String line;
         int [] tmp = new int[2];
-        int compteur = 0;
+        int cpt = 0;
 
         try {
             f = new FileReader(name);
@@ -30,7 +30,6 @@ public class Parser {
         }
 
         br = new BufferedReader(f);
-
         try {
             while ((line = br.readLine()) != null) {
                 if (line.charAt(0) != '#') {
@@ -38,17 +37,17 @@ public class Parser {
                     try {
                         graphe.addSommet(tmp[0], tmp[1]);
                     } catch (Exception e) {
-                        System.out.println("Erreur format ligne " + compteur);
+                        System.out.println("Erreur format ligne " + cpt);
                         exit(1);
                     }
-                    compteur++;
+                    cpt++;
                 }
             }
         } catch (IOException ex) {
             System.err.println("Erreur pendant la lecture du fichier "+ name);
         }
 
-        if (compteur == 0) {
+        if (cpt == 0) {
             System.out.println("Erreur: Fichier " + name + " vide");
         }
 
@@ -66,15 +65,24 @@ public class Parser {
         }
     }
     
-    public void matriceDistance(){
-        BFSAlgorithm bfs = new BFSAlgorithm(graphe);
-        bfs.addDistance();
-        //bfs.addnpcc();
+    public void calculBetweenness2(int[] tab){
+        Betweenness bfs = new Betweenness(graphe);
+        bfs.calculDistanceEtNPCC();
+        bfs.addBet2(tab);
+    }
+    
+    public void calculBetweenness(){
+        Betweenness bfs = new Betweenness(graphe);
+        bfs.calculDistanceEtNPCC();
         bfs.addBet();
     }
     
     public void printResult(){
          graphe.printResult();
+    }
+    
+    public void printResult2(){
+        graphe.printResult2();
     }
      
 }

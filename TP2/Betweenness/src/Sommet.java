@@ -55,9 +55,9 @@ public class Sommet {
      * @param n
      * @return un boolean
      */
-    public boolean contient(int n) {
+    public boolean contient(Sommet n) {
         for (int i = 0; i < adjacence.size(); i++) {
-            if (adjacence.get(i).getId() == n)
+            if (adjacence.get(i).equals(n))
                 return true;
         }
         return false;
