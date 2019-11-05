@@ -67,13 +67,13 @@ public class Parser {
     
     public void calculBetweenness2(int[] tab){
         Betweenness bfs = new Betweenness(graphe);
-        bfs.calculDistanceEtNPCC();
+        bfs.calculDistanceEtNPCC(tab);
         bfs.addBet2(tab);
     }
     
     public void calculBetweenness(){
         Betweenness bfs = new Betweenness(graphe);
-        bfs.calculDistanceEtNPCC();
+        bfs.calculDistanceEtNPCC(null);
         bfs.addBet();
     }
     

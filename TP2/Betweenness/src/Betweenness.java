@@ -101,23 +101,23 @@ public class Betweenness {
     }
     
     public void addBet2(int[] tab){
-        int size = tab.length;
+        int size = graphe.getSommets().size();
     	
     	double n = (size-1)*(size-2);
     	double bet = 0;
-    	for(int v = 0; v < size; v++) {
-            if(graphe.getSommetByID(tab[v]) != null){
+    	for(int v : tab) {
+            if(graphe.getSommetByID(v) != null){
                 double sum=0;
                 for (int s = 0; s < size; s++) {
                     for(int t = 0;t < size; t++) {
-                        if(s!=tab[v] && s!=t && tab[v]!=t) {
-                            System.out.println(tab[v]+"******");
-                            sum += bet_svt(s,tab[v],t);
+                        if(s!=v && s!=t && v!=t) {
+                            //System.out.println(sum+"******");
+                            sum += bet_svt(s,v,t);
                         }   
                     }
                 }
                 bet = sum / n;
-                System.out.println(tab[v]+" : "+ bet);
+                System.out.println(v+" : "+ bet);
             }else{
                 System.out.println(tab[v]+" : Numero de sommet invalide");
             }
@@ -143,17 +143,28 @@ public class Betweenness {
     	}
     }
     
-    public void calculDistanceEtNPCC(){
+    public void calculDistanceEtNPCC(int[] tab){
         System.out.println("_____________________________");
         System.out.println("Liste Betweenness : ");
         distance_matrice = new int[graphe.getSommets().size()][graphe.getSommets().size()];
         npcc = new int[graphe.getSommets().size()][graphe.getSommets().size()];
-	for(int i = 0; i < distance_matrice.length; i++) {
-            BFS(i);
-	 }
-	for(int i = 0; i < npcc.length; i++) {
-		addnpcc(i);
-	}
+        if(tab == null) {
+            for(int i = 0; i < distance_matrice.length; i++) {
+                BFS(i);
+            }
+            for(int i = 0; i < npcc.length; i++) {
+            	addnpcc(i);
+            }
+        }
+        else {
+            for(int i : tab) {
+                BFS(i);
+            }
+            for(int i : tab) {
+            	addnpcc(i);
+            }
+        }
+
 	/*System.out.println("*********Matrice des distances*************");
         for(int i = 0; i<distance_matrice.length; i++) {
             // System.out.println("col "+i+":");
