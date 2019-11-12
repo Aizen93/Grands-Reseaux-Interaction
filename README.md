@@ -1,15 +1,18 @@
 # Grands-Reseaux-Interaction
-Theorie des graphes - tous les algorithmes possible
+Theorie des graphes - tous les algorithmes pratiques
 
-- Gaphe
-- Sommet de degre maximum
-- Nombre d'aretes
-- Liste d'adjacence
-- Distribution des degrés
-- Distance minimal entre deux sommets
-- NPCC(s,t) (nbr plus cours chemin entre s et t)
-- NPCC(s, v, t) (nbr plus cours chemin entre s et t en passant par v)
-- Betweenness Centrality
+- Gaphe TP1
+- Sommet de degre maximum TP1
+- Nombre d'aretes TP1
+- Liste d'adjacence TP1
+- Distribution des degrés TP1
+- Distance minimal entre deux sommets TP2
+- NPCC(s,t) (nbr plus cours chemin entre s et t) TP2
+- NPCC(s, v, t) (nbr plus cours chemin entre s et t en passant par v) TP2
+- Betweenness Centrality TP2
+- Clustring TP3
+- Modularité de newman TP3
+- Algorithme de louvain TP3
 - ...etc
 
 
