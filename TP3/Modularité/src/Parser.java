@@ -1,16 +1,20 @@
-
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import static java.lang.System.exit;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Parser {
     
-    public Parser(){
-        
+    Graphe G;
+    
+    public Parser(Graphe graphe){
+        this.G = graphe;
     }
     
-    public static void lecture(Graphe G, String filename) {
+    public void parseStanfordFormat(String filename) {
 	// lecture du graphe, recopiée du TP1 
 	
 	// passe 1 : compte les lignes
@@ -69,9 +73,9 @@ public class Parser {
 
 	// passe 3 : alloue les sommets et calcule leur degre (sans tenir compte des doublons)
 	int nbloop = 0;
-	G.sommets = new Sommet[G.nbr_sommet];
+	G.sommets = new ArrayList<>(G.nbr_sommet);
 	for(int i=0;i<G.nbr_sommet;i++)
-	    G.sommets[i]=new Sommet(i);
+	    G.sommets.add(new Sommet(i));
 
 	for(int i = 0; i< l; i++){
             int x, y; // juste pour la lisibilité
@@ -82,8 +86,8 @@ public class Parser {
                 continue;
             }
 
-            (G.sommets[x].degre)++; // arete x--y augmente le degre de x 
-            (G.sommets[y].degre)++; // ...et celui de y 
+            (G.sommets.get(x).degre)++; // arete x--y augmente le degre de x 
+            (G.sommets.get(y).degre)++; // ...et celui de y 
         }
         
 	if(nbloop > 0)
@@ -92,9 +96,9 @@ public class Parser {
 	// tpasse 4 :  ajoute les aretes. 
 	// d'abord allouons les tableaux d'adjacance
 	for(int i=0;i<G.nbr_sommet;i++) {
-	    if(G.sommets[i].degre>0)  
-		G.sommets[i].adjacence = new int[G.sommets[i].degre];
-	    G.sommets[i].degre=0; // on remet le degre a zero car degre pointe la première place libre où insérer un élément pour la troisième passe
+	    if(G.sommets.get(i).degre > 0)  
+		G.sommets.get(i).adjacence = new int[G.sommets.get(i).degre];
+	    G.sommets.get(i).degre=0; // on remet le degre a zero car degre pointe la première place libre où insérer un élément pour la troisième passe
 	}
 
 	for(int i = 0; i< l; i++){
@@ -103,8 +107,8 @@ public class Parser {
             y = lus[i][1];
             if(x==y)
                 continue;
-            G.sommets[x].adjacence[G.sommets[x].degre++] = y;
-            G.sommets[y].adjacence[G.sommets[y].degre++] = x;
+            G.sommets.get(x).adjacence[G.sommets.get(x).degre++] = y;
+            G.sommets.get(y).adjacence[G.sommets.get(y).degre++] = x;
         }
 	
 	// passe 5 :  deboublonage, calul de m et des degres reels
@@ -112,31 +116,95 @@ public class Parser {
 	G.degreMax = 0;
 	G.somdmax = 0; 
 	for(int i=0;i<G.nbr_sommet;i++) {
-	    if(G.sommets[i].degre>0) { 
-		Arrays.sort(G.sommets[i].adjacence); 		    // on commence par trier la liste d'adjacance.
-		for(int j= G.sommets[i].degre-2;j>=0;j--)  
-		    if(G.sommets[i].adjacence[j]==G.sommets[i].adjacence[j+1]) {    // du coup les doublons deviennent consécutifs 
+	    if(G.sommets.get(i).degre > 0) { 
+		Arrays.sort(G.sommets.get(i).adjacence); 		    // on commence par trier la liste d'adjacance.
+		for(int j = G.sommets.get(i).degre-2; j >=0; j--)  
+		    if(G.sommets.get(i).adjacence[j] == G.sommets.get(i).adjacence[j+1]) {    // du coup les doublons deviennent consécutifs 
 			// oh oh un doublon
 			nbdoubl++;
 			// on echange le doublon avec le dernier element que l'on supprime
 			// boucle de droite a gauche pour eviter de deplacer un autre doublon
-			G.sommets[i].adjacence[j+1]=G.sommets[i].adjacence[G.sommets[i].degre-1];
-			G.sommets[i].degre--;
+			G.sommets.get(i).adjacence[j+1]=G.sommets.get(i).adjacence[G.sommets.get(i).degre-1];
+			G.sommets.get(i).degre--;
 		    }
 	    }
 	    // on calcule le degré max maintenant, et le nombre d'arêtes
-	    if(G.degreMax < G.sommets[i].degre){
-                G.degreMax =  G.sommets[i].degre;
+	    if(G.degreMax < G.sommets.get(i).degre){
+                G.degreMax =  G.sommets.get(i).degre;
                 G.somdmax = i; // on sait qui atteint le degré max
             }
-	    G.nbr_arete += G.sommets[i].degre;
+	    G.nbr_arete += G.sommets.get(i).degre;
 	}
 	    
 	// on a compté chaque arête deux fois et chaqyue doublon aussi
 	G.nbr_arete /= 2;
 	nbdoubl /= 2;
-	
+        
+        
 	if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
+    }
+    
+    /**
+     * Split un String en deux (Format Stanford d'une arrete) et transforme le string en int
+     * @param s
+     * @param cluster
+     * @return cluster
+     */
+    public Cluster splitAndParseInt(String s, Cluster cluster) {
+        int a = 0;
+        for (int pos = 0; pos < s.length(); pos++) {
+            char c = s.charAt(pos);
+            if (c == ' ' || c == '\t') {
+                if (a != 0){
+                    cluster.addSommet(a);
+                }
+                a = 0;
+                continue;
+            }
+            if (c < '0' || c > '9') {
+                System.out.println("Erreur format ligne " + pos + "c = " + c + " valeur " + (int) c);
+                System.exit(1);
+            }
+            a = 10 * a + c - '0';
+            
+        }
+        return cluster;
+    }
+    
+    public void parseClusters(String path, Partition partition){
+        FileReader f = null;
+        BufferedReader br;
+        String line;
+        int cpt = 0;
+
+        try {
+            f = new FileReader(path);
+        } catch (FileNotFoundException e) {
+            System.out.println("Erreur entree/sortie sur " + path);
+            exit(1);
+        }
+
+        br = new BufferedReader(f);
+        try {
+            while ((line = br.readLine()) != null) {
+                partition.addCluster(splitAndParseInt(line, new Cluster()));
+                cpt++;
+            }
+        } catch (IOException ex) {
+            System.err.println("Erreur pendant la lecture du fichier "+ path);
+        }
+
+        if (cpt == 0) {
+            System.out.println("Erreur: Fichier " + path + " vide");
+        }
+
+        try {
+            br.close();
+            f.close();
+        } catch (IOException ex) {
+            System.err.println("Erreur lors de la fermeture du BufferReader ou du FileReader !");
+        }
+        
     }
     
 }
