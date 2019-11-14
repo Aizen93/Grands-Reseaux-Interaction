@@ -90,8 +90,7 @@ public class Parser {
             (G.sommets.get(y).degre)++; // ...et celui de y 
         }
         
-	if(nbloop > 0)
-	    System.out.println(nbloop + " boucles ont été ignorées");
+	//if(nbloop > 0) System.out.println(nbloop + " boucles ont été ignorées");
 
 	// tpasse 4 :  ajoute les aretes. 
 	// d'abord allouons les tableaux d'adjacance
@@ -140,8 +139,15 @@ public class Parser {
 	G.nbr_arete /= 2;
 	nbdoubl /= 2;
         
+        //supprimer les sommet de degré 0
+        for (int i = 0; i < G.sommets.size(); i++){
+            if(G.sommets.get(i).degre == 0){
+                G.sommets.remove(G.sommets.get(i));
+                i -= 1;
+            }
+        }
         
-	if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
+	//if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
     }
     
     /**
@@ -156,7 +162,7 @@ public class Parser {
             char c = s.charAt(pos);
             if (c == ' ' || c == '\t') {
                 if (a != 0){
-                    cluster.addSommet(a);
+                    cluster.addSommet(G.getSommet(a));
                 }
                 a = 0;
                 continue;
@@ -168,6 +174,7 @@ public class Parser {
             a = 10 * a + c - '0';
             
         }
+        //System.out.println(cluster.sommets);
         return cluster;
     }
     

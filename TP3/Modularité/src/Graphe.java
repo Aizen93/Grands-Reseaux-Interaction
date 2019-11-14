@@ -14,9 +14,15 @@ class Graphe {
         this.parser = new Parser(this);
     }
     
+    public Sommet getSommet(int i){
+        for(Sommet s : sommets){
+            if(s.ID == i) return s;
+        }
+        return null;
+    }
+    
     public void generateGraphe(String stanford_path){
 	this.parser.parseStanfordFormat(stanford_path);
-        
     }
     
     /**
@@ -27,7 +33,7 @@ class Graphe {
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
         System.out.println("size partition = " + partition.size());
-        this.partition.Q();
+        this.partition.Q(this);
     }
     
     public void printResult(){
@@ -37,8 +43,15 @@ class Graphe {
 	System.out.println("Sommet de degré max (de numéro minimal) : " + somdmax);
 	System.out.println("Sa liste d'adjacence (ligne suivante) :");
         
- 	for(int i=0; i< sommets.get(somdmax).degre; i++) 
-	    System.out.print(sommets.get(somdmax).adjacence[i]+ " ");
+        Sommet somDegreMax = null;
+        for(Sommet s : sommets){
+            if(s.ID == somdmax){
+                somDegreMax = s;
+                break;
+            }
+        }
+ 	for(int i = 0; i < somDegreMax.degre; i++) 
+	    System.out.print(somDegreMax.adjacence[i]+ " ");
         
 	System.out.println("\nDitribution des degrés : ");
 	// calculs de degré
