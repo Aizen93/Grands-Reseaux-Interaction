@@ -140,42 +140,36 @@ public class Parser {
 	nbdoubl /= 2;
         
         //supprimer les sommet de degré 0
-        for (int i = 0; i < G.sommets.size(); i++){
+        /*for (int i = 0; i < G.sommets.size(); i++){
             if(G.sommets.get(i).degre == 0){
                 G.sommets.remove(G.sommets.get(i));
+                G.nbr_sommet--;
                 i -= 1;
             }
-        }
+        }*/
         
 	//if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
     }
     
     /**
-     * Split un String en deux (Format Stanford d'une arrete) et transforme le string en int
-     * @param s
-     * @param cluster
+     * Split un String en plusieurs morceaux (Format Stanford d'une arrete) et transforme le string en int
+     * @param line
      * @return cluster
      */
-    public Cluster splitAndParseInt(String s, Cluster cluster) {
-        int a = 0;
-        for (int pos = 0; pos < s.length(); pos++) {
-            char c = s.charAt(pos);
-            if (c == ' ' || c == '\t') {
-                if (a != 0){
-                    cluster.addSommet(G.getSommet(a));
-                }
-                a = 0;
-                continue;
+    public ArrayList<Integer> parseLine(String line){
+        String[] s = line.split(" ");
+        ArrayList<Integer> l = new ArrayList<>();
+        for (String item : s) {
+            try{
+                l.add(Integer.parseInt(item));
+                //System.out.print(s[i]+" ");
+            }catch(NumberFormatException e){
+                System.out.println("Bad format .clu file, please check it again !");
+                System.exit(0);
             }
-            if (c < '0' || c > '9') {
-                System.out.println("Erreur format ligne " + pos + "c = " + c + " valeur " + (int) c);
-                System.exit(1);
-            }
-            a = 10 * a + c - '0';
-            
         }
-        //System.out.println(cluster.sommets);
-        return cluster;
+        //System.out.println("");
+        return l;
     }
     
     public void parseClusters(String path, Partition partition){
@@ -194,7 +188,10 @@ public class Parser {
         br = new BufferedReader(f);
         try {
             while ((line = br.readLine()) != null) {
-                partition.addCluster(splitAndParseInt(line, new Cluster()));
+                //partition.addCluster(splitAndParseInt(line, new Cluster()));
+                Cluster clu = new Cluster();
+                clu.sommets = parseLine(line);
+                partition.addCluster(clu);
                 cpt++;
             }
         } catch (IOException ex) {

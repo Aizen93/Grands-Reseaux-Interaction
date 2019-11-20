@@ -2,7 +2,7 @@
  * 
  * @author Oussama, Lilya
  */
-public class TP3 {
+public class TP34 {
     
     public static void main(String[] args) {
 	if (args.length != 3) {
@@ -18,11 +18,14 @@ public class TP3 {
             
         }else if(args[0].equals("paire")){
             
-            System.out.println("paire, not yet implemented !");
+            System.out.println("paire, being implemented not yet finished....");
+            Graphe graphe = new Graphe();
+            graphe.generateGraphe(args[1]);
+            graphe.calculateIncrementModu(args[2]);
             
         }else if(args[0].equals("louvain")){
             
-            System.out.println("louvain, not yet implemented");
+            System.out.println("louvain, not yet implemented...");
             
         }else{
             

@@ -6,21 +6,21 @@ import java.util.ArrayList;
  */
 public class Cluster {
     
-    ArrayList<Sommet> sommets;
-    int size;
+    ArrayList<Integer> sommets;
     
     public Cluster(){
         this.sommets = new ArrayList<>();
-        this.size = 0;
     }
     
+    public int size(){
+        return sommets.size();
+    }
     /**
      * Add a node to the cluster
      * @param sommet 
      */
-    public void addSommet(Sommet sommet){
+    public void addSommet(int sommet){
         this.sommets.add(sommet);
-        size++;
     }
     
     

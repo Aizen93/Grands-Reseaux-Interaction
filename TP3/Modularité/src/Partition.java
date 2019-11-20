@@ -11,7 +11,7 @@ public class Partition {
     
     public Partition(){
         this.partition = new ArrayList<>();
-        this.modularite = 9999.0;
+        this.modularite = 0.0;
     }
     
     public void addCluster(Cluster c){
@@ -26,28 +26,32 @@ public class Partition {
         return partition.size();
     }
     
-    public int[] m(int i, int j, Graphe graphe){
-        int eij = 0;
-        int aij = 0;
+    public double sqr(double a){
+        return a * a;
+    }
+    
+    public double[] m(int i, int j, Graphe g){
+        double eij = 0;
+        double aij = 0;
         Cluster cluster1 = partition.get(i);
         Cluster cluster2 = partition.get(j);
-        
-        for(int k = 0; k < cluster1.size; k++){
-            for(int l = 0; l < cluster2.size; l++){
-                Sommet som1 = cluster1.sommets.get(k);
-                Sommet som2 = cluster2.sommets.get(l);
+        for(int k = 0; k < cluster1.size(); k++){
+            Sommet som1 = g.sommets.get(cluster1.sommets.get(k));
+            for(int l = 0; l < cluster2.size(); l++){
+                Sommet som2 = g.sommets.get(cluster2.sommets.get(l));
                 aij += (2*(som1.degre * som2.degre));
                 if(som2.contient(som1)){
-                   eij++;
+                    eij++;
                }
             }
         }
         //System.out.println("m("+i+" "+j+") = "+ arrete);
-        return (new int[]{eij, aij});
+        return (new double[]{eij, aij});
     }
     
     /**
      * Calculate modularité of a graph
+     * Utilise les arretes externes c'est un peu different de la formule donnée en TP
      */
     public void Q(Graphe graphe){
         double m = graphe.nbr_arete;
@@ -55,21 +59,11 @@ public class Partition {
         double Aij = 0;
         for(int i = 0; i < partition.size(); i++){
             for(int j = i+1; j < partition.size(); j++){
-                int[] tmp = m(i, j, graphe);
-                Eij += (tmp[0] / m);
-                Aij += tmp[1] / (4 * Math.pow(m, 2));
+                double[] tmp = m(i, j, graphe);
+                Eij += tmp[0] / m;
+                Aij += tmp[1] / (4 * sqr(m));
             }
         }
-        
-        //Eij = Eij / graphe.nbr_arete;
-        System.out.println("Eij = "+Eij);
-        //Aij = (Aij*Aij) / (4 * sqr(graphe.nbr_arete));
-        System.out.println("Aij = "+Aij);
-        
         modularite = Aij - Eij;
-        System.out.println("-----------------------------------");
-        System.out.println("| Modularité = " + modularite);
-        System.out.println("-----------------------------------");
-        
     }
 }
