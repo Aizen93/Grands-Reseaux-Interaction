@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  *
@@ -30,12 +31,22 @@ public class Partition {
         return a * a;
     }
     
-    public double[] m(int i, int j, Graphe g){
-        double eij = 0;
-        double aij = 0;
-        Cluster cluster1 = partition.get(i);
-        Cluster cluster2 = partition.get(j);
-        for(int k = 0; k < cluster1.size(); k++){
+    public double[] m(int i, Graphe g){
+        double eii = 0;
+        double aii = 0;
+        Cluster cluster = partition.get(i);
+        HashSet<Integer> visite = new HashSet<>();
+        for(int k : cluster.sommets) {
+            aii += g.getSommet(k).degre;
+            visite.add(k);
+            for (int l: g.getSommet(k).adjacence) {
+                if(cluster.sommets.contains(l) && !visite.contains(l)) {
+                    eii++;
+                }
+            }
+        }
+
+        /*for(int k = 0; k < cluster1.size(); k++){
             Sommet som1 = g.sommets.get(cluster1.sommets.get(k));
             for(int l = 0; l < cluster2.size(); l++){
                 Sommet som2 = g.sommets.get(cluster2.sommets.get(l));
@@ -44,9 +55,9 @@ public class Partition {
                     eij++;
                }
             }
-        }
+        }*/
         //System.out.println("m("+i+" "+j+") = "+ arrete);
-        return (new double[]{eij, aij});
+        return (new double[]{eii, sqr(aii)});
     }
     
     /**
@@ -55,15 +66,17 @@ public class Partition {
      */
     public void Q(Graphe graphe){
         double m = graphe.nbr_arete;
-        double Eij = 0;
-        double Aij = 0;
+        double Eii = 0;
+        double Aii = 0;
         for(int i = 0; i < partition.size(); i++){
-            for(int j = i+1; j < partition.size(); j++){
-                double[] tmp = m(i, j, graphe);
-                Eij += tmp[0] / m;
-                Aij += tmp[1] / (4 * sqr(m));
+            partition.get(i).calcul_nb_arête(graphe);
+            if(partition.get(i).size() == 1) {
+                Aii += sqr(graphe.getSommet(partition.get(i).sommets.get(0)).degre)/(4 * sqr(m));
+            }else{
+                Eii += partition.get(i).nb_arete / m;
+                Aii += sqr(partition.get(i).somme_degre) / (4 * sqr(m));
             }
         }
-        modularite = Aij - Eij;
+        modularite = Eii - Aii;
     }
 }

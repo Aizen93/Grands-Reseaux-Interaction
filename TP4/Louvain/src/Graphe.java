@@ -1,7 +1,7 @@
 
 import java.util.ArrayList;
 
-class Graphe { 
+public class Graphe {
     int nbr_sommet;      // nombre de sommets
     int nbr_arete;      // nombre d'aretes
     int degreMax;   // degre max d'un sommet

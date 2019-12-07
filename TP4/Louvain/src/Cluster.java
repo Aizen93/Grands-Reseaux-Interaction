@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  *
@@ -7,9 +8,28 @@ import java.util.ArrayList;
 public class Cluster {
     
     ArrayList<Integer> sommets;
-    
+    double somme_degre, nb_arete;
+
     public Cluster(){
         this.sommets = new ArrayList<>();
+        somme_degre = 0;
+        nb_arete = 0;
+    }
+
+    public void calcul_nb_arête(Graphe g) {
+        if(sommets.size() == 1) {
+            nb_arete = 0;
+        }else{
+            HashSet<Integer> visit = new HashSet<>();
+            for(int k : this.sommets) {
+                visit.add(k);
+                for (int l: g.getSommet(k).adjacence) {
+                    if(this.sommets.contains(l) && !visit.contains(l)) {
+                        nb_arete++;
+                    }
+                }
+            }
+        }
     }
     
     public int size(){

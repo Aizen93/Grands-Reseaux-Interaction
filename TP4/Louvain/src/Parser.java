@@ -208,6 +208,9 @@ public class Parser {
                 //partition.addCluster(splitAndParseInt(line, new Cluster()));
                 Cluster clu = new Cluster();
                 clu.sommets = parseLine(line);
+                for(int k : clu.sommets) {
+                    clu.somme_degre += G.getSommet(k).degre;
+                }
                 partition.addCluster(clu);
                 cpt++;
             }
