@@ -151,6 +151,22 @@ public class Parser {
 	//if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
     }
     
+    public int intValueOf(String str){
+        int ival = 0, idx = 0, end;
+        boolean sign = false;
+        char ch;
+
+        if( str == null || ( end = str.length() ) == 0 || ( ( ch = str.charAt( 0 ) ) < '0' || ch > '9' )
+              && ( !( sign = ch == '-' ) || ++idx == end || ( ( ch = str.charAt( idx ) ) < '0' || ch > '9' ) ) )
+            throw new NumberFormatException( str );
+
+        for(;; ival *= 10 ){
+            ival += '0'- ch;
+            if( ++idx == end ) return sign ? ival : -ival;
+            if( ( ch = str.charAt( idx ) ) < '0' || ch > '9' ) throw new NumberFormatException( str );
+        }
+    }
+    
     /**
      * Split un String en plusieurs morceaux (Format Stanford d'une arrete) et transforme le string en int
      * @param line
@@ -161,7 +177,8 @@ public class Parser {
         ArrayList<Integer> l = new ArrayList<>();
         for (String item : s) {
             try{
-                l.add(Integer.parseInt(item));
+                l.add(intValueOf(item));
+                //l.add(Integer.parseInt(item));
                 //System.out.print(s[i]+" ");
             }catch(NumberFormatException e){
                 System.out.println("Bad format .clu file, please check it again !");
