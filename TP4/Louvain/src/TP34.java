@@ -18,7 +18,6 @@ public class TP34 {
             
         }else if(args[0].equals("paire")){
             
-            System.out.println("paire, being implemented not yet finished....");
             Graphe graphe = new Graphe();
             graphe.generateGraphe(args[1]);
             graphe.calculateIncrementModu(args[2]);

@@ -1,4 +1,4 @@
-class Sommet {
+public class Sommet {
     
     int ID ; // nom numéro pour débug seulement
     int degre; // son degré.

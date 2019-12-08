@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 
 public class Graphe {
@@ -52,6 +51,29 @@ public class Graphe {
         //fusionne 2 clusters et recalcule la modu
         //on compare les 2 modu
         //on remet la partition a son etat initial puis on recommence
+        this.partition = new Partition();
+        this.parser.parseClusters(clusters_path, this.partition);
+        partition.fusionner(0, 1);
+        /*for(int k = 0; k < partition.size(); k++){
+            for(int l = 0; l < partition.partition.get(k).size(); l++){
+                System.out.print(partition.partition.get(k).sommets.get(l)+ " ");
+            }
+            System.out.println("");
+        }*/
+        double[] res = this.partition.calculatePaire(this);
+        if(res[0] != -1){
+            for(int i = 0; i < partition.partition.get((int)res[0]).size(); i++){
+                System.out.print(partition.partition.get((int)res[0]).sommets.get(i) + " ");
+            }
+            System.out.println("");
+            for(int i = 0; i < partition.partition.get((int)res[1]).size(); i++){
+                System.out.print(partition.partition.get((int)res[1]).sommets.get(i) + " ");
+            }
+            System.out.println("");
+            System.out.println(res[2]);
+        }else{
+            System.out.println("La modularité est au max avec le clustering actuelle de <" + clusters_path + ">, plus besoin de fusionner d'avantage !");
+        }
     }
     
     public void printResult(){
