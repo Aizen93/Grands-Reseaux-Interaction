@@ -119,6 +119,31 @@ public class Partition {
         return new double[]{pair1, pair2, increment};
     }
 
+    public void calculateLouvain(String cluster_path, Graphe graphe){
+        for (Sommet som : graphe.sommets) {
+            Cluster clu = new Cluster();
+            clu.sommets.add(som.ID);
+            clu.calcul_Som_Degre(graphe);
+            this.partition.add(clu);
+        }
+        double[] res = calculatePaire(graphe);
+        //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1]);
+        while(res[0] != -1 ){
+            //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1] + " ; increment : "+ res[2]);
+            this.partition = fusionner((int)res[0], (int)res[1], graphe);
+            res = calculatePaire(graphe);
+        }
+        /*for (Cluster c: partition.partition) {
+            if(c.sommets.size() > 1) {
+                for (int i: c.sommets) {
+                    System.out.print(i+" ");
+                }
+                System.out.println();
+            }
+        }*/
+        Q(graphe);
+        System.out.println("Meilleure modularité : " + modularite);
+    }
 
     
     public double[] calculatePaire2(Graphe graphe){

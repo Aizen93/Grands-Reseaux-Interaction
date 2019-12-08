@@ -1,4 +1,6 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
 public class Graphe {
     int nbr_sommet;      // nombre de sommets
@@ -51,7 +53,7 @@ public class Graphe {
      * @param clusters_path 
      */
     public void calculateIncrementModu(String clusters_path){
-        
+
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
         //matrice d'adjacence
@@ -120,4 +122,8 @@ public class Graphe {
         
     }
 
+    public void calculateLouvain(String clusters_path) {
+        this.partition = new Partition();
+        this.partition.calculateLouvain(clusters_path, this);
+    }
 }

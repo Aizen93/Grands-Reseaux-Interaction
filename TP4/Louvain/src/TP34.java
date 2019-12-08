@@ -28,9 +28,13 @@ public class TP34 {
             }
             
         }else if(args[0].equals("louvain")){
-            
-            System.out.println("louvain, not yet implemented...");
-            
+            try{
+                Graphe graphe = new Graphe();
+                graphe.generateGraphe(args[1]);
+                graphe.calculateLouvain(args[2]);
+            }catch(NullPointerException | java.lang.Error e){
+                System.out.println("Error: cluster doesn't correspond to the graphe !");
+            }
         }else{
             
             System.out.println("Usage : java TP3 option nomFichier.txt fichier.clu");

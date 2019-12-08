@@ -15,9 +15,11 @@ public class Sommet {
      * @return un boolean
      */
     public boolean contient(Sommet n) {
-        for (int i = 0; i < adjacence.length; i++) {
-            if (adjacence[i] == n.ID)
-                return true;
+        if(adjacence != null) {
+            for (int i = 0; i < adjacence.length; i++) {
+                if (adjacence[i] == n.ID)
+                    return true;
+            }
         }
         return false;
     }
