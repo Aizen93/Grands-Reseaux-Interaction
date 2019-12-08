@@ -10,17 +10,22 @@ public class TP34 {
             System.out.println("options: \n- <modu> \n- <paire>\n- <louvain>");
 	    return;
 	}else if(args[0].equals("modu")){
-            
-            Graphe graphe = new Graphe();
-            graphe.generateGraphe(args[1]);
-            //graphe.printResult();
-            graphe.calculateModularite(args[2]);
-            
+            try{
+                Graphe graphe = new Graphe();
+                graphe.generateGraphe(args[1]);
+                //graphe.printResult();
+                graphe.calculateModularite(args[2]);
+            }catch(NullPointerException | java.lang.Error e){
+                System.out.println("Error: cluster doesn't correspond to the graphe !");
+            }
         }else if(args[0].equals("paire")){
-            
-            Graphe graphe = new Graphe();
-            graphe.generateGraphe(args[1]);
-            graphe.calculateIncrementModu(args[2]);
+            try{
+                Graphe graphe = new Graphe();
+                graphe.generateGraphe(args[1]);
+                graphe.calculateIncrementModu(args[2]);
+            }catch(NullPointerException | java.lang.Error e){
+                System.out.println("Error: cluster doesn't correspond to the graphe !");
+            }
             
         }else if(args[0].equals("louvain")){
             

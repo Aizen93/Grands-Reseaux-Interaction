@@ -43,14 +43,15 @@ public class Graphe {
      * Calculate the best increment when we merge two clusters
      * and prints the indices of the two clusters
      * option paire
-     * Algorithme naive (a optimiser)
+     * Algorithme naive (a optimiser) les etapes sont :
+     * calcule la modu
+     * fusionne 2 clusters et recalcule la modu
+     * on compare les 2 modu
+     * on remet la partition a son etat initial puis on recommence
      * @param clusters_path 
      */
     public void calculateIncrementModu(String clusters_path){
-        //calcule la modu
-        //fusionne 2 clusters et recalcule la modu
-        //on compare les 2 modu
-        //on remet la partition a son etat initial puis on recommence
+        
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
         //partition.fusionner(0, 1);

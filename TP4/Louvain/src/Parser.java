@@ -217,7 +217,8 @@ public class Parser {
         }
 
         if (cpt == 0) {
-            System.out.println("Erreur: Fichier " + path + " vide");
+            System.out.println("Erreur: Fichier <" + path + "> vide");
+            System.exit(0);
         }
 
         try {

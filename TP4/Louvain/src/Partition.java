@@ -93,22 +93,17 @@ public class Partition {
     //Version optimisé
     public double[] calculatePaire(Graphe graphe){
         double m = graphe.nbr_arete;
-        Q(graphe);
-        double moduInit = modularite;
         double increment = 0, increment2 = 0;
         ArrayList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
         for(int i = 0; i < originalPartition.size(); i++){
             for(int j = i+1; j < originalPartition.size(); j++){
-                //partition = fusionner(i, j, graphe);
-                //Q(graphe);
                 //System.out.println("i = "+ i + " j = "+ j + " modu = " + modularite + " increm = " + (modularite - moduInit));
                 Cluster clua = originalPartition.get(i);
                 Cluster club = originalPartition.get(j);
-                //System.out.println("somdegre a = " +clua.somme_degre + " arret = " + m(i, j, graphe));
                 increment2 = (m(i, j, graphe) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m))) 
                         + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
-                increment2 = (double)Math.round(increment2 * 1000d) / 1000d;
+                //increment2 = (double)Math.round(increment2 * 1000d) / 1000d;
                 //System.out.println("incre = "+ increment2);
                 if(increment2 > increment){
                     pair1 = i; pair2 = j;
