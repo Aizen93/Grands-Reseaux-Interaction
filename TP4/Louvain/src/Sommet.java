@@ -1,12 +1,12 @@
 public class Sommet {
     
-    int ID ; // nom numéro pour débug seulement
+    int ID ; // nom numéro sommet
     int degre; // son degré.
     int []adjacence; // tableau d'adjacence. une case = un numero de voisin. sa longueur est degré
     
     Sommet(int i) {
 	this.ID = i;
-	this.degre =0; 
+	this.degre = 0; 
     }
     
     /**

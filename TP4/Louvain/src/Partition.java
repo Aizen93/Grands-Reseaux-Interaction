@@ -123,7 +123,7 @@ public class Partition {
         for (Sommet som : graphe.sommets) {
             Cluster clu = new Cluster();
             clu.sommets.add(som.ID);
-            clu.calcul_Som_Degre(graphe);
+            clu.somme_degre = som.degre;
             this.partition.add(clu);
         }
         double[] res = calculatePaire(graphe);

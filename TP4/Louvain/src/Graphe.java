@@ -1,6 +1,4 @@
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
 
 public class Graphe {
     int nbr_sommet;      // nombre de sommets
@@ -27,7 +25,7 @@ public class Graphe {
     }
     
     /**
-     * Calculates modularité TP3 
+     * Calculates modularity TP3 
      * option modu
      * @param clusters_path 
      */
@@ -53,7 +51,7 @@ public class Graphe {
      * @param clusters_path 
      */
     public void calculateIncrementModu(String clusters_path){
-
+        System.out.println("nbr sommet = "+ nbr_sommet);
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
         //matrice d'adjacence
@@ -66,7 +64,7 @@ public class Graphe {
                 if(som1.adjacence != null && som2.adjacence != null){
                     if(som1.ID == som2.ID) partition.matrix_Mij[y][z++] = 0;
                     else{
-                        System.out.println(som1.ID + " " + som2.ID);
+                        //System.out.println(som1.ID + " " + som2.ID);
                         if(som1.contient(som2)) partition.matrix_Mij[y][z++] = 1;
                         else partition.matrix_Mij[y][z++] = 0;
                     }
@@ -96,6 +94,15 @@ public class Graphe {
         }
     }
     
+    /**
+     * uses Louvain's Algorithm to create clusters with the best modularity possible 
+     * @param clusters_path 
+     */
+    public void calculateLouvain(String clusters_path) {
+        this.partition = new Partition();
+        this.partition.calculateLouvain(clusters_path, this);
+    }
+    
     public void printResult(){
 	System.out.println("Nombre de sommets : "+(nbr_sommet));
 	System.out.println("Nombre d'aretes : "+nbr_arete);
@@ -120,10 +127,5 @@ public class Graphe {
 	for(int i = 0; i <= degreMax; i++) 
 	    System.out.println(i + " " + dgr[i]);
         
-    }
-
-    public void calculateLouvain(String clusters_path) {
-        this.partition = new Partition();
-        this.partition.calculateLouvain(clusters_path, this);
     }
 }
