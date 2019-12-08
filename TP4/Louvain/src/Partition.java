@@ -37,22 +37,24 @@ public class Partition {
      */
     public void Q(Graphe graphe){
         double m = graphe.nbr_arete;
-        double Eii, Aii;
+        double Eii = 0.0, Aii = 0.0, Q = 0.0;
         for(int i = 0; i < partition.size(); i++){
-            partition.get(i).calcul_nb_arête(graphe);
+            partition.get(i).calcul_nb_arete(graphe);
             
-            Eii = partition.get(i).nb_arete / m;
-            Aii = sqr(partition.get(i).somme_degre) / (4 * sqr(m));
-            modularite += Eii - Aii;
+            Eii += partition.get(i).nb_arete / m;
+            Aii += sqr(partition.get(i).somme_degre) / (4 * sqr(m));
+            //Q += Eii - Aii;
         }
+         modularite = Eii - Aii;
     }
     
-    public ArrayList<Cluster> fusionner(int i, int j){
+    public ArrayList<Cluster> fusionner(int i, int j, Graphe graphe){
         Cluster clu1 = partition.get(i);
         Cluster clu2 = partition.get(j);
         Cluster cluF = new Cluster();
         cluF.sommets.addAll(clu1.sommets);
         cluF.sommets.addAll(clu2.sommets);
+        cluF.somme_degre = clu1.somme_degre + clu2.somme_degre;
         ArrayList<Cluster> tmp = new ArrayList<>();
         for(int k = 0; k < partition.size(); k++){
             if(k != i && k != j){
@@ -79,7 +81,7 @@ public class Partition {
         int pair1 = -1, pair2 = -1;
         for(int i = 0; i < originalPartition.size(); i++){
             for(int j = i+1; j < originalPartition.size(); j++){
-                partition = fusionner(i, j);
+                partition = fusionner(i, j, graphe);
                 Q(graphe);
                 //System.out.println("i = "+ i + " j = "+ j + " modu = " + modularite + " increm = " + (modularite - moduInit));
                 

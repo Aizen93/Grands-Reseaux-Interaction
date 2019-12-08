@@ -15,8 +15,15 @@ public class Cluster {
         somme_degre = 0;
         nb_arete = 0;
     }
+    
+    public void calcul_Som_Degre(Graphe graphe){
+        for(int k : sommets) {
+            somme_degre += graphe.getSommet(k).degre;
+        }
+    }
 
-    public void calcul_nb_arête(Graphe g) {
+    public void calcul_nb_arete(Graphe g) {
+        nb_arete = 0;
         if(sommets.size() != 1) {
            for (int k = 0; k < sommets.size()-1; k++) {
                 for (int l = k+1; l < sommets.size(); l++) {

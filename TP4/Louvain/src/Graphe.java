@@ -53,7 +53,7 @@ public class Graphe {
         //on remet la partition a son etat initial puis on recommence
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
-        partition.fusionner(0, 1);
+        //partition.fusionner(0, 1);
         /*for(int k = 0; k < partition.size(); k++){
             for(int l = 0; l < partition.partition.get(k).size(); l++){
                 System.out.print(partition.partition.get(k).sommets.get(l)+ " ");
