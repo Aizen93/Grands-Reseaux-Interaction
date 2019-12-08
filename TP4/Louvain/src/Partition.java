@@ -73,7 +73,59 @@ public class Partition {
         return tmp;
     }
     
+    public double m(int i, int j, Graphe g){
+        double eij = 0;
+        Cluster cluster1 = partition.get(i);
+        Cluster cluster2 = partition.get(j);
+        for(int k = 0; k < cluster1.size(); k++){
+            Sommet som1 = g.sommets.get(cluster1.sommets.get(k));
+            for(int l = 0; l < cluster2.size(); l++){
+                Sommet som2 = g.sommets.get(cluster2.sommets.get(l));
+                if(som2.contient(som1)){
+                    eij++;
+               }
+            }
+        }
+        //System.out.println("m("+i+" "+j+") = "+ arrete);
+        return eij;
+    }
+    
+    //Version optimisé
     public double[] calculatePaire(Graphe graphe){
+        double m = graphe.nbr_arete;
+        Q(graphe);
+        double moduInit = modularite;
+        double increment = 0, increment2 = 0;
+        ArrayList<Cluster> originalPartition = partition;
+        int pair1 = -1, pair2 = -1;
+        for(int i = 0; i < originalPartition.size(); i++){
+            for(int j = i+1; j < originalPartition.size(); j++){
+                //partition = fusionner(i, j, graphe);
+                //Q(graphe);
+                //System.out.println("i = "+ i + " j = "+ j + " modu = " + modularite + " increm = " + (modularite - moduInit));
+                Cluster clua = originalPartition.get(i);
+                Cluster club = originalPartition.get(j);
+                //System.out.println("somdegre a = " +clua.somme_degre + " arret = " + m(i, j, graphe));
+                increment2 = (m(i, j, graphe) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m))) 
+                        + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
+                increment2 = (double)Math.round(increment2 * 1000d) / 1000d;
+                //System.out.println("incre = "+ increment2);
+                if(increment2 > increment){
+                    pair1 = i; pair2 = j;
+                    increment = increment2;
+                    partition = originalPartition;
+                    //System.out.println("i = "+i + " j = "+j + " incre = "+increment);
+                }else{
+                    partition = originalPartition;
+                }
+            }
+        }
+        return new double[]{pair1, pair2, increment};
+    }
+
+
+    
+    public double[] calculatePaire2(Graphe graphe){
         Q(graphe);
         double moduInit = modularite;
         double increment = 0;

@@ -70,7 +70,7 @@ public class Graphe {
                 System.out.print(partition.partition.get((int)res[1]).sommets.get(i) + " ");
             }
             System.out.println("");
-            System.out.println(res[2]);
+            System.out.println("incrément de modularité : " + res[2]);
         }else{
             System.out.println("La modularité est au max avec le clustering actuelle de <" + clusters_path + ">, plus besoin de fusionner d'avantage !");
         }
