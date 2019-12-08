@@ -10,9 +10,11 @@ Theorie des graphes - tous les algorithmes pratiques
 - NPCC(s,t) (nbr plus cours chemin entre s et t) TP2
 - NPCC(s, v, t) (nbr plus cours chemin entre s et t en passant par v) TP2
 - Betweenness Centrality TP2
-- Clustring TP3
-- Modularité de newman TP3
-- Algorithme de louvain TP3
+
+- Modularité de Newman TP4
+- Increment de modularité TP4
+- Algorithme de louvain TP4
+- Clustring TP4
 - ...etc
 
 
