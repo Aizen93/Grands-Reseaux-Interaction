@@ -17,18 +17,12 @@ public class Cluster {
     }
 
     public void calcul_nb_arête(Graphe g) {
-        if(sommets.size() == 1) {
-            nb_arete = 0;
-        }else{
-            HashSet<Integer> visit = new HashSet<>();
-            for(int k : this.sommets) {
-                visit.add(k);
-                for (int l: g.getSommet(k).adjacence) {
-                    if(this.sommets.contains(l) && !visit.contains(l)) {
-                        nb_arete++;
-                    }
+        if(sommets.size() != 1) {
+           for (int k = 0; k < sommets.size()-1; k++) {
+                for (int l = k+1; l < sommets.size(); l++) {
+                    if(g.sommets.get(sommets.get(k)).contient(g.sommets.get(sommets.get(l)))) nb_arete++;
                 }
-            }
+           }
         }
     }
     
