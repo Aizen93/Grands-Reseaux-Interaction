@@ -8,6 +8,7 @@ public class Partition {
     
     ArrayList<Cluster> partition;
     double modularite;
+    int[][] matrix_Mij;
     
     public Partition(){
         this.partition = new ArrayList<>();

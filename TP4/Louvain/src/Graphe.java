@@ -54,13 +54,30 @@ public class Graphe {
         
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
-        //partition.fusionner(0, 1);
-        /*for(int k = 0; k < partition.size(); k++){
-            for(int l = 0; l < partition.partition.get(k).size(); l++){
-                System.out.print(partition.partition.get(k).sommets.get(l)+ " ");
+        //matrice d'adjacence
+        partition.matrix_Mij = new int[nbr_sommet][nbr_sommet];
+        int y = -1, z = 0;
+        for(Sommet som1 : sommets){
+            z = 0;
+            y++;
+            for(Sommet som2 : sommets){
+                if(som1.adjacence != null && som2.adjacence != null){
+                    if(som1.ID == som2.ID) partition.matrix_Mij[y][z++] = 0;
+                    else{
+                        System.out.println(som1.ID + " " + som2.ID);
+                        if(som1.contient(som2)) partition.matrix_Mij[y][z++] = 1;
+                        else partition.matrix_Mij[y][z++] = 0;
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < partition.matrix_Mij.length; i++){
+            for(int j = 0; j < partition.matrix_Mij.length; j++){
+                System.out.print(partition.matrix_Mij[i][j] + " ");
             }
             System.out.println("");
-        }*/
+        }
+        
         double[] res = this.partition.calculatePaire(this);
         if(res[0] != -1){
             for(int i = 0; i < partition.partition.get((int)res[0]).size(); i++){
