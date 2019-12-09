@@ -25,6 +25,7 @@ public class TP34 {
                 graphe.calculateIncrementModu(args[2]);
             }catch(NullPointerException | java.lang.Error e){
                 System.out.println("Error: cluster doesn't correspond to the graphe !");
+                e.printStackTrace();
             }
             
         }else if(args[0].equals("louvain")){

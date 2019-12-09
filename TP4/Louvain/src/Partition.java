@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.PriorityQueue;
 
 /**
  *
@@ -9,10 +11,12 @@ public class Partition {
     ArrayList<Cluster> partition;
     double modularite;
     int[][] matrix_Mij;
+    PriorityQueue<Paire> paires_modularite;
     
     public Partition(){
         this.partition = new ArrayList<>();
         this.modularite = 0.0;
+        paires_modularite = new PriorityQueue<>();
     }
     
     public void addCluster(Cluster c){
@@ -50,34 +54,25 @@ public class Partition {
     }
     
     public ArrayList<Cluster> fusionner(int i, int j, Graphe graphe){
+        if(i < 0 || j < 0) return partition;
         Cluster clu1 = partition.get(i);
         Cluster clu2 = partition.get(j);
-        Cluster cluF = new Cluster();
-        cluF.sommets.addAll(clu1.sommets);
-        cluF.sommets.addAll(clu2.sommets);
-        cluF.somme_degre = clu1.somme_degre + clu2.somme_degre;
+        clu1.sommets.addAll(clu2.sommets);
+        clu1.somme_degre = clu1.somme_degre + clu2.somme_degre;
         ArrayList<Cluster> tmp = new ArrayList<>();
         for(int k = 0; k < partition.size(); k++){
-            if(k != i && k != j){
-                tmp.add(partition.get(k));
-            }
+            if(k != j)    tmp.add(partition.get(k));
         }
-        
-        tmp.add(cluF);
-        /*for(int k = 0; k < tmp.size(); k++){
-            for(int l = 0; l < tmp.get(k).size(); l++){
-                System.out.print(tmp.get(k).sommets.get(l)+ " ");
-            }
-            System.out.println("");
-        }
-        System.out.println("----------------------------");*/
+        paires_modularite.removeIf((Paire p) ->
+                (p.i).equals(clu1) || (p.i).equals(clu2) || (p.j).equals(clu1) || (p.j).equals(clu2)
+        );
+
+        for(int k = 0; k < partition.size(); k++) calculatePaireModularite(clu1, partition.get(k), graphe);
         return tmp;
     }
     
-    public double m(int i, int j, Graphe g){
+    public double m(Cluster cluster1, Cluster cluster2, Graphe g){
         double eij = 0;
-        Cluster cluster1 = partition.get(i);
-        Cluster cluster2 = partition.get(j);
         for(int k = 0; k < cluster1.size(); k++){
             Sommet som1 = g.sommets.get(cluster1.sommets.get(k));
             for(int l = 0; l < cluster2.size(); l++){
@@ -90,6 +85,21 @@ public class Partition {
         //System.out.println("m("+i+" "+j+") = "+ arrete);
         return eij;
     }
+
+    public void initPaireModularite(Graphe graphe) {
+        for(int i = 0; i < partition.size(); i++) {
+            for (int j = i + 1; j < partition.size(); j++) {
+                calculatePaireModularite(partition.get(i),partition.get(j),graphe);
+            }
+        }
+    }
+
+    public void calculatePaireModularite(Cluster i, Cluster j, Graphe graphe) {
+        double m = graphe.nbr_arete;
+        double modul = (m(i, j, graphe) / m) - (sqr(i.somme_degre + j.somme_degre)/(4*sqr(m)))
+                + (sqr(i.somme_degre)/(4*sqr(m))) + (sqr(j.somme_degre)/(4*sqr(m)));
+        if(!i.equals(j)) paires_modularite.add(new Paire(i, j, modul));
+    }
     
     //Version optimisé
     public double[] calculatePaire(Graphe graphe){
@@ -97,7 +107,16 @@ public class Partition {
         double increment = 0, increment2 = 0;
         ArrayList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
-        for(int i = 0; i < originalPartition.size(); i++){
+        Paire p = paires_modularite.poll();
+        if(p.modularite > increment){
+            pair1 = partition.indexOf(p.i); pair2 = partition.indexOf(p.j);
+            increment = p.modularite;
+            partition = originalPartition;
+            //System.out.println("i = "+i + " j = "+j + " incre = "+increment);
+        }else{
+            partition = originalPartition;
+        }
+        /*for(int i = 0; i < originalPartition.size(); i++){
             for(int j = i+1; j < originalPartition.size(); j++){
                 //System.out.println("i = "+ i + " j = "+ j + " modu = " + modularite + " increm = " + (modularite - moduInit));
                 Cluster clua = originalPartition.get(i);
@@ -115,7 +134,7 @@ public class Partition {
                     partition = originalPartition;
                 }
             }
-        }
+        }*/
         return new double[]{pair1, pair2, increment};
     }
 
@@ -126,6 +145,7 @@ public class Partition {
             clu.somme_degre = som.degre;
             this.partition.add(clu);
         }
+        initPaireModularite(graphe);
         double[] res = calculatePaire(graphe);
         //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1]);
         while(res[0] != -1 ){
@@ -133,7 +153,7 @@ public class Partition {
             this.partition = fusionner((int)res[0], (int)res[1], graphe);
             res = calculatePaire(graphe);
         }
-        /*for (Cluster c: partition.partition) {
+        /*for (Cluster c: partition) {
             if(c.sommets.size() > 1) {
                 for (int i: c.sommets) {
                     System.out.print(i+" ");

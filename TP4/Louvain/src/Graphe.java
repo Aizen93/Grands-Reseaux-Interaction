@@ -54,6 +54,7 @@ public class Graphe {
         System.out.println("nbr sommet = "+ nbr_sommet);
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
+        partition.initPaireModularite(this);
         //matrice d'adjacence
         partition.matrix_Mij = new int[nbr_sommet][nbr_sommet];
         int y = -1, z = 0;
@@ -71,12 +72,12 @@ public class Graphe {
                 }
             }
         }
-        for(int i = 0; i < partition.matrix_Mij.length; i++){
+    /*    for(int i = 0; i < partition.matrix_Mij.length; i++){
             for(int j = 0; j < partition.matrix_Mij.length; j++){
                 System.out.print(partition.matrix_Mij[i][j] + " ");
             }
             System.out.println("");
-        }
+        }*/
         
         double[] res = this.partition.calculatePaire(this);
         if(res[0] != -1){
