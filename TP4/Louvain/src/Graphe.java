@@ -80,11 +80,11 @@ public class Graphe {
         this.partition = new Partition();
         
         //matrice d'adjacence
-        partition.matrix_Mij = new LinkedList<>();
+        partition.matrix_Mij = new ArrayList<>();
         int y = 0;
         for(Sommet som1 : sommets){
             if(som1.adjacence != null){
-                partition.matrix_Mij.add(new LinkedList<>());
+                partition.matrix_Mij.add(new ArrayList<>());
                 for(Sommet som2 : sommets){
                     if(som2.adjacence != null){
                         if(som1.ID == som2.ID) partition.matrix_Mij.get(y).add(0);
