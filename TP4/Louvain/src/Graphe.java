@@ -51,33 +51,9 @@ public class Graphe {
      * @param clusters_path 
      */
     public void calculateIncrementModu(String clusters_path){
-        System.out.println("nbr sommet = "+ nbr_sommet);
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
         partition.initPaireModularite(this);
-        //matrice d'adjacence
-        partition.matrix_Mij = new int[nbr_sommet][nbr_sommet];
-        int y = -1, z = 0;
-        for(Sommet som1 : sommets){
-            z = 0;
-            y++;
-            for(Sommet som2 : sommets){
-                if(som1.adjacence != null && som2.adjacence != null){
-                    if(som1.ID == som2.ID) partition.matrix_Mij[y][z++] = 0;
-                    else{
-                        //System.out.println(som1.ID + " " + som2.ID);
-                        if(som1.contient(som2)) partition.matrix_Mij[y][z++] = 1;
-                        else partition.matrix_Mij[y][z++] = 0;
-                    }
-                }
-            }
-        }
-    /*    for(int i = 0; i < partition.matrix_Mij.length; i++){
-            for(int j = 0; j < partition.matrix_Mij.length; j++){
-                System.out.print(partition.matrix_Mij[i][j] + " ");
-            }
-            System.out.println("");
-        }*/
         
         double[] res = this.partition.calculatePaire(this);
         if(res[0] != -1){
@@ -101,6 +77,33 @@ public class Graphe {
      */
     public void calculateLouvain(String clusters_path) {
         this.partition = new Partition();
+        
+        //matrice d'adjacence
+        partition.matrix_Mij = new ArrayList<>();
+        int y = -1;
+        for(Sommet som1 : sommets){
+            if(som1.adjacence != null){
+                y++;
+                partition.matrix_Mij.add(new ArrayList<>());
+                for(Sommet som2 : sommets){
+                    if(som2.adjacence != null){
+                        if(som1.ID == som2.ID) partition.matrix_Mij.get(y).add(0);
+                        else{
+                            //System.out.println(som1.ID + " " + som2.ID);
+                            if(som1.contient(som2)) partition.matrix_Mij.get(y).add(1);
+                            else partition.matrix_Mij.get(y).add(0);
+                        }
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < partition.matrix_Mij.size(); i++){
+            for(int j = 0; j < partition.matrix_Mij.size(); j++){
+                System.out.print(partition.matrix_Mij.get(i).get(j) + " ");
+            }
+            System.out.println("");
+        }
+        
         this.partition.calculateLouvain(clusters_path, this);
     }
     
