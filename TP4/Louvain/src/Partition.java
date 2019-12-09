@@ -1,4 +1,7 @@
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 /**
@@ -7,13 +10,13 @@ import java.util.PriorityQueue;
  */
 public class Partition {
     
-    ArrayList<Cluster> partition;
+    LinkedList<Cluster> partition;
     double modularite;
-    ArrayList<ArrayList<Integer>> matrix_Mij;
+    LinkedList<LinkedList<Integer>> matrix_Mij;
     PriorityQueue<Paire> paires_modularite;
     
     public Partition(){
-        this.partition = new ArrayList<>();
+        this.partition = new LinkedList<>();
         this.modularite = 0.0;
         paires_modularite = new PriorityQueue<>();
     }
@@ -52,42 +55,48 @@ public class Partition {
          modularite = Eii - Aii;
     }
     
-    public ArrayList<Cluster> fusionner(int i, int j, Graphe graphe){
-        if(i < 0 || j < 0) return partition;
+    public void fusionner(int i, int j, Graphe graphe){
+        if(i < 0 || j < 0) return;
         Cluster clu1 = partition.get(i);
         Cluster clu2 = partition.get(j);
+
         clu1.sommets.addAll(clu2.sommets);
         clu1.somme_degre = clu1.somme_degre + clu2.somme_degre;
-        ArrayList<Cluster> tmp = new ArrayList<>();
+        clu1.calcul_nb_arete(graphe);
+        LinkedList<Cluster> tmp = new LinkedList<>();
+        //partition.remove(j);
         for(int k = 0; k < partition.size(); k++){
             if(k != j)    tmp.add(partition.get(k));
         }
-        paires_modularite.removeIf((Paire p) ->
-                (p.i).equals(clu1) || (p.i).equals(clu2) || (p.j).equals(clu1) || (p.j).equals(clu2)
-        );
-        
-        for(int k = 0; k < matrix_Mij.get(i).size(); k++){
+        partition = tmp;
+
+        //Instant start = Instant.now();
+
+        for (int k = 0; k < matrix_Mij.get(i).size(); k++) {
+            matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
+        }
+
+        /*for(int k = 0; k < matrix_Mij.get(i).size(); k++){
             if(k == i){
                 matrix_Mij.get(i).set(k, 0);
             }else{
                 matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
-                
             }
-        }
+        }*/
+        matrix_Mij.remove(j);
         for(int k = 0; k < matrix_Mij.size(); k++){
             matrix_Mij.get(k).remove(j);
         }
-        matrix_Mij.remove(j);
-        
-        for(int k = 0; k < matrix_Mij.size(); k++){
+        //Instant finish = Instant.now();
+        //long timeElapsed = Duration.between(start, finish).toMillis();
+        //System.out.println("time : "+timeElapsed+" ms");
+        /*for(int k = 0; k < matrix_Mij.size(); k++){
             for(int l = 0; l < matrix_Mij.size(); l++){
                 System.out.print(matrix_Mij.get(k).get(l) + " ");
             }
             System.out.println("");
-        }
-
-        for(int k = 0; k < partition.size(); k++) calculatePaireModularite(clu1, partition.get(k), graphe);
-        return tmp;
+        }*/
+        calculatePaireModularite(i, graphe);
     }
     
     public double m(Cluster cluster1, Cluster cluster2, Graphe g){
@@ -107,26 +116,53 @@ public class Partition {
 
     public void initPaireModularite(Graphe graphe) {
         for(int i = 0; i < partition.size(); i++) {
-            for (int j = i + 1; j < partition.size(); j++) {
-                calculatePaireModularite(partition.get(i),partition.get(j),graphe);
+            double modu_max = 0;
+            int k = 0;
+            Cluster clua = partition.get(i), club;
+            double m = graphe.nbr_arete;
+            for (int j = i+1; j < partition.size(); j++) {
+                    club = partition.get(j);
+                    double tmp = ((matrix_Mij.get(i).get(j) / m) - (sqr(clua.somme_degre + club.somme_degre) / (4 * sqr(m))))
+                            + (sqr(clua.somme_degre) / (4 * sqr(m))) + (sqr(club.somme_degre) / (4 * sqr(m)));
+                    if(tmp > modu_max) {
+                        modu_max = tmp;
+                        k = j;
+                    }
             }
+            paires_modularite.add(new Paire(partition.get(i), partition.get(k), modu_max));
+            //System.out.println("DEBUG -- i : "+i+", j : "+k+", modularite_max : "+modu_max);
         }
     }
 
-    public void calculatePaireModularite(Cluster i, Cluster j, Graphe graphe) {
+    public void calculatePaireModularite(int i, Graphe graphe) {
+        double modu_max = 0;
+        int k = 0;
+        Cluster clua = partition.get(i), club;
         double m = graphe.nbr_arete;
-        double modul = (matrix_Mij.get(partition.indexOf(i)).get(partition.indexOf(j)) / m) - (sqr(i.somme_degre + j.somme_degre)/(4*sqr(m)))
-                + (sqr(i.somme_degre)/(4*sqr(m))) + (sqr(j.somme_degre)/(4*sqr(m)));
-        if(!i.equals(j)) paires_modularite.add(new Paire(i, j, modul));
+        for (int j = 0; j < partition.size(); j++) {
+            if(i != j){
+                club = partition.get(j);
+                double tmp = (matrix_Mij.get(i).get(j) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m)))
+                        + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
+                if(tmp > modu_max) {
+                    modu_max = tmp;
+                    k = j;
+                }
+            }
+        }
+        paires_modularite.add(new Paire(partition.get(i), partition.get(k), modu_max));
+        System.out.println("DEBUG -- i : "+i+", j : "+k+", modularite_max : "+modu_max);
     }
     
     //Version optimisé
     public double[] calculatePaire(Graphe graphe){
+
         double m = graphe.nbr_arete;
         double increment = 0;
-        ArrayList<Cluster> originalPartition = partition;
+        LinkedList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
         Paire p = paires_modularite.poll();
+        //System.out.println("DEBUG-- Paire : i = "+partition.indexOf(p.i) + " j = "+partition.indexOf(p.j) + " imodul = "+p.modularite);
         if(p.modularite > increment){
             pair1 = partition.indexOf(p.i); pair2 = partition.indexOf(p.j);
             increment = p.modularite;
@@ -147,14 +183,15 @@ public class Partition {
                 this.partition.add(clu);
             }
         }
-        System.out.println("size = "+partition.size() + " last = " + partition.get(partition.size()-1).sommets.get(0));
+        //System.out.println("size = "+partition.size() + " last = " + partition.get(partition.size()-1).sommets.get(0));
         initPaireModularite(graphe);
-        double[] res = calculatePaire(graphe);
+        double[] res;
         //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1]);
-        while(res[0] != -1 ){
-            //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1] + " ; increment : "+ res[2]);
-            this.partition = fusionner((int)res[0], (int)res[1], graphe);
+        while(!paires_modularite.isEmpty()){
             res = calculatePaire(graphe);
+            //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1] + " ; increment : "+ res[2]);
+            fusionner((int)res[0], (int)res[1], graphe);
+            //if(paires_modularite.isEmpty() && res[0] != -1) initPaireModularite(graphe);
         }
         /*for (Cluster c: partition) {
             if(c.sommets.size() > 1) {
@@ -168,29 +205,4 @@ public class Partition {
         System.out.println("Meilleure modularité : " + modularite);
     }
 
-    
-    public double[] calculatePaire2(Graphe graphe){
-        Q(graphe);
-        double moduInit = modularite;
-        double increment = 0;
-        ArrayList<Cluster> originalPartition = partition;
-        int pair1 = -1, pair2 = -1;
-        for(int i = 0; i < originalPartition.size(); i++){
-            for(int j = i+1; j < originalPartition.size(); j++){
-                partition = fusionner(i, j, graphe);
-                Q(graphe);
-                //System.out.println("i = "+ i + " j = "+ j + " modu = " + modularite + " increm = " + (modularite - moduInit));
-                
-                if(modularite - moduInit > increment){
-                    pair1 = i; pair2 = j;
-                    increment = modularite - moduInit;
-                    partition = originalPartition;
-                    //System.out.println("i = "+i + " j = "+j + " incre = "+increment);
-                }else{
-                    partition = originalPartition;
-                }
-            }
-        }
-        return new double[]{pair1, pair2, increment};
-    }
 }

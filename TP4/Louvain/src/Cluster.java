@@ -42,5 +42,4 @@ public class Cluster {
         this.sommets.add(sommet);
     }
     
-    
 }

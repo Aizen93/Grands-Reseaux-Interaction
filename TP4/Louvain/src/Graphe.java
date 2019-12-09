@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Graphe {
     int nbr_sommet;      // nombre de sommets
@@ -79,12 +80,11 @@ public class Graphe {
         this.partition = new Partition();
         
         //matrice d'adjacence
-        partition.matrix_Mij = new ArrayList<>();
-        int y = -1;
+        partition.matrix_Mij = new LinkedList<>();
+        int y = 0;
         for(Sommet som1 : sommets){
             if(som1.adjacence != null){
-                y++;
-                partition.matrix_Mij.add(new ArrayList<>());
+                partition.matrix_Mij.add(new LinkedList<>());
                 for(Sommet som2 : sommets){
                     if(som2.adjacence != null){
                         if(som1.ID == som2.ID) partition.matrix_Mij.get(y).add(0);
@@ -95,14 +95,15 @@ public class Graphe {
                         }
                     }
                 }
+                y++;
             }
         }
-        for(int i = 0; i < partition.matrix_Mij.size(); i++){
+        /*for(int i = 0; i < partition.matrix_Mij.size(); i++){
             for(int j = 0; j < partition.matrix_Mij.size(); j++){
                 System.out.print(partition.matrix_Mij.get(i).get(j) + " ");
             }
             System.out.println("");
-        }
+        }*/
         
         this.partition.calculateLouvain(clusters_path, this);
     }
