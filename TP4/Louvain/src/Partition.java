@@ -88,16 +88,13 @@ public class Partition {
         }
 */
         for(int k = 0; k < matrix_Mij.get(i).size(); k++){
-            if(k == i){
-                matrix_Mij.get(i).set(k, 0);
-            }else{
-                matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
-            }
+            matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
         }
-        matrix_Mij.remove(j);
         for(int k = 0; k < matrix_Mij.size(); k++){
+            matrix_Mij.get(k).set(i, matrix_Mij.get(k).get(j) + matrix_Mij.get(k).get(i));
             matrix_Mij.get(k).remove(j);
         }
+        matrix_Mij.remove(j);
 
 
         /*for(int k = 0; k < matrix_Mij.size(); k++){
