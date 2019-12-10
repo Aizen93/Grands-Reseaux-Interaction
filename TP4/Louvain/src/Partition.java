@@ -49,7 +49,6 @@ public class Partition {
             
             Eii += partition.get(i).nb_arete / m;
             Aii += sqr(partition.get(i).somme_degre) / (4 * sqr(m));
-            //Q += Eii - Aii;
         }
          modularite = Eii - Aii;
     }
@@ -58,35 +57,23 @@ public class Partition {
         if(i < 0 || j < 0) return;
         ArrayList<Paire> recalcul = new ArrayList<>();
         for (Paire paire: paires_modularite) {
-            if(partition.get(i).equals(paire.j) || partition.get(j).equals(paire.j)){
-                recalcul.add(paire);
-            }
+            if(partition.get(i).equals(paire.j) || partition.get(j).equals(paire.j)) recalcul.add(paire);
         }
         if(i > j) {
-            int tmp = i;
-            i = j;
-            j = tmp;
+            int tmp = i; i = j; j = tmp;
         }
-        Cluster clu1 = partition.get(i);
-        Cluster clu2 = partition.get(j);
-        /*paires_modularite.removeIf( (Paire p ) ->
-                (clu1.equals(p.j)) || clu2.equals(p.j));*/
+        fusion_cluster(i,j);
+        updateMatrix(i,j);
+        for (Paire paire:recalcul) {
+            if(partition.indexOf(paire.i) != -1){
+                calculatePaireModularite(partition.indexOf(paire.i),0, graphe);
+            }
+            paires_modularite.remove(paire);
+        }
+        calculatePaireModularite(i, 0, graphe);
+    }
 
-        clu1.sommets.addAll(clu2.sommets);
-        clu1.somme_degre = clu1.somme_degre + clu2.somme_degre;
-        //clu1.calcul_nb_arete(graphe);
-        ArrayList<Cluster> tmp = new ArrayList<>();
-        //partition.remove(j);
-        for(int k = 0; k < partition.size(); k++){
-            if(k != j)    tmp.add(partition.get(k));
-        }
-        partition = tmp;
-
-        /*
-        for (int k = 0; k < matrix_Mij.get(i).size(); k++) {
-            matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
-        }
-*/
+    public void updateMatrix(int i, int j){
         for(int k = 0; k < matrix_Mij.get(i).size(); k++){
             matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
         }
@@ -95,20 +82,18 @@ public class Partition {
             matrix_Mij.get(k).remove(j);
         }
         matrix_Mij.remove(j);
+    }
 
-
-        /*for(int k = 0; k < matrix_Mij.size(); k++){
-            for(int l = 0; l < matrix_Mij.size(); l++){
-                System.out.print(matrix_Mij.get(k).get(l) + " ");
-            }
-            System.out.println("");
-        }*/
-        for (Paire paire:recalcul) {
-            //System.out.println("DEBUG -- paire.i : "+paire.i);
-            if(partition.indexOf(paire.i) != -1)calculatePaireModularite(partition.indexOf(paire.i),0, graphe);
-            paires_modularite.remove(paire);
+    public void fusion_cluster(int i, int j) {
+        Cluster clu1 = partition.get(i);
+        Cluster clu2 = partition.get(j);
+        clu1.sommets.addAll(clu2.sommets);
+        clu1.somme_degre = clu1.somme_degre + clu2.somme_degre;
+        ArrayList<Cluster> tmp = new ArrayList<>();
+        for(int k = 0; k < partition.size(); k++){
+            if(k != j)    tmp.add(partition.get(k));
         }
-        calculatePaireModularite(i, 0, graphe);
+        partition = tmp;
     }
 
     public double m(Cluster cluster1, Cluster cluster2, Graphe g){
@@ -122,7 +107,6 @@ public class Partition {
                }
             }
         }
-        //System.out.println("m("+i+" "+j+") = "+ arrete);
         return eij;
     }
 
@@ -155,7 +139,6 @@ public class Partition {
         if (k == i) return;
         if(k == -1) paires_modularite.add(new Paire(partition.get(i), null, -1));
         else paires_modularite.add(new Paire(partition.get(i), partition.get(k), modu_max));
-        //System.out.println("DEBUG -- i : "+i+", j : "+k+", modularite_max : "+modu_max);
     }
     
     //Version optimisé
@@ -166,12 +149,10 @@ public class Partition {
         ArrayList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
         Paire p = paires_modularite.poll();
-        //System.out.println("DEBUG-- Paire : i = "+partition.indexOf(p.i) + " j = "+partition.indexOf(p.j) + " imodul = "+p.modularite);
         if(p.modularite > increment){
             pair1 = partition.indexOf(p.i); pair2 = partition.indexOf(p.j);
             increment = p.modularite;
             partition = originalPartition;
-            //System.out.println("i = "+i + " j = "+j + " incre = "+increment);
         }else{
             partition = originalPartition;
         }
@@ -187,20 +168,13 @@ public class Partition {
                 this.partition.add(clu);
             }
         }
-        //System.out.println("size = "+partition.size() + " last = " + partition.get(partition.size()-1).sommets.get(0));
         initPaireModularite(graphe);
         double[] res;
-        //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1]);
         Paire p = paires_modularite.poll();
         while(p.j != null || paires_modularite.isEmpty()){
             if (p.j == null) calculatePaireModularite(partition.indexOf(p.i), 0, graphe);
             if(p.modularite >= 0) fusionner(partition.indexOf(p.i), partition.indexOf(p.j), graphe);
             p = paires_modularite.poll();
-            //if(paires_modularite.isEmpty()) initPaireModularite(graphe);
-            //res = calculatePaire(graphe);
-            //System.out.println("DEBUG - res : "+ res[0] + " ; "+res[1] + " ; increment : "+ res[2]);
-            //fusionner((int)res[0], (int)res[1], graphe);
-            //if(paires_modularite.isEmpty() && res[0] != -1) initPaireModularite(graphe);
         }
         /*for (Cluster c: partition) {
             if(c.sommets.size() > 1) {
