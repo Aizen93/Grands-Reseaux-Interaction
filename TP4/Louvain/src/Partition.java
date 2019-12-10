@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,12 +68,14 @@ public class Partition {
         }
         fusion_cluster(i,j);
         updateMatrix(i,j);
-        for (Paire paire:recalcul) {
+        recalcul.stream().map((paire) -> {
             if(partition.indexOf(paire.i) != -1){
                 calculatePaireModularite(partition.indexOf(paire.i),0, graphe);
             }
+            return paire;
+        }).forEachOrdered((paire) -> {
             paires_modularite.remove(paire);
-        }
+        });
         calculatePaireModularite(i, 0, graphe);
     }
 
@@ -143,47 +149,75 @@ public class Partition {
     
     //Version optimisé
     public double[] calculatePaire(Graphe graphe){
-        initPaireModularite(graphe);
         double m = graphe.nbr_arete;
-        double increment = 0;
+        double increment = 0, increment2 = 0;
         ArrayList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
-        Paire p = paires_modularite.poll();
-        if(p.modularite > increment){
-            pair1 = partition.indexOf(p.i); pair2 = partition.indexOf(p.j);
-            increment = p.modularite;
-            partition = originalPartition;
-        }else{
-            partition = originalPartition;
+        for(int i = 0; i < originalPartition.size(); i++){
+            for(int j = i+1; j < originalPartition.size(); j++){
+                Cluster clua = originalPartition.get(i);
+                Cluster club = originalPartition.get(j);
+                increment2 = (m(partition.get(i), partition.get(j), graphe) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m))) 
+                        + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
+                if(increment2 > increment){
+                    pair1 = i; pair2 = j;
+                    increment = increment2;
+                    partition = originalPartition;
+                    
+                }else{
+                    partition = originalPartition;
+                }
+            }
         }
         return new double[]{pair1, pair2, increment};
     }
 
     public void calculateLouvain(String cluster_path, Graphe graphe){
-        for (Sommet som : graphe.sommets) {
-            if(som.adjacence != null){
-                Cluster clu = new Cluster();
-                clu.sommets.add(som.ID);
-                clu.somme_degre = som.degre;
-                this.partition.add(clu);
-            }
-        }
+        graphe.sommets.stream().filter((som) -> (som.adjacence != null)).map((som) -> {
+            Cluster clu = new Cluster();
+            clu.sommets.add(som.ID);
+            clu.somme_degre = som.degre;
+            return clu;
+        }).forEachOrdered((clu) -> {
+            this.partition.add(clu);
+        });
         initPaireModularite(graphe);
-        double[] res;
         Paire p = paires_modularite.poll();
         while(p.j != null || paires_modularite.isEmpty()){
             if (p.j == null) calculatePaireModularite(partition.indexOf(p.i), 0, graphe);
             if(p.modularite >= 0) fusionner(partition.indexOf(p.i), partition.indexOf(p.j), graphe);
             p = paires_modularite.poll();
         }
-        /*for (Cluster c: partition) {
-            if(c.sommets.size() > 1) {
-                for (int i: c.sommets) {
-                    System.out.print(i+" ");
+        
+        Instant start = Instant.now();
+        FileWriter filewriter = null;
+        try {
+            File file = new File(cluster_path);
+            filewriter = new FileWriter(file.getAbsoluteFile());
+            try (BufferedWriter bufferwriter = new BufferedWriter(filewriter)) {
+                for (Cluster c: partition) {
+                    if(c.sommets.size() > 1) {
+                        for (int i: c.sommets) {
+                            bufferwriter.write(i+" ");
+                        }
+                        bufferwriter.write("\n");
+                    }
                 }
-                System.out.println();
             }
-        }*/
+        } catch (IOException ex) {
+            System.out.println("Error, writing on file <" + cluster_path + ">");
+        } finally {
+            try {
+                filewriter.close();
+            } catch (IOException ex) {
+                System.out.println("Error, closing filewriter !");
+            }
+        }
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+        System.out.println("time writng file: "+timeElapsed+" ms");
+        
+        
         Q(graphe);
         System.out.println("Meilleure modularité : " + modularite);
     }

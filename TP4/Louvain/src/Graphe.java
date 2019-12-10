@@ -41,20 +41,20 @@ public class Graphe {
     }
     
     /**
-     * Calculate the best increment when we merge two clusters
+     * Calculate the best increment when we merge two clusters TP34
      * and prints the indices of the two clusters
      * option paire
-     * Algorithme naive (a optimiser) les etapes sont :
-     * calcule la modu
-     * fusionne 2 clusters et recalcule la modu
-     * on compare les 2 modu
-     * on remet la partition a son etat initial puis on recommence
+     * Uses number (3)'s equation to calculate the modularity increment 
+     * Steps followed :
+     * - Calculate the increment modularity for every pair of clusters
+     * - Compare all modularity increment found
+     * - Takes the best increment possible
      * @param clusters_path 
      */
     public void calculateIncrementModu(String clusters_path){
         this.partition = new Partition();
         this.parser.parseClusters(clusters_path, this.partition);
-        partition.initPaireModularite(this);
+        partition.calculatePaire(this);
         
         double[] res = this.partition.calculatePaire(this);
         if(res[0] != -1){
@@ -73,7 +73,8 @@ public class Graphe {
     }
     
     /**
-     * uses Louvain's Algorithm to create clusters with the best modularity possible 
+     * Uses Louvain's Algorithm to create clusters with the best modularity possible 
+     * TP34
      * @param clusters_path 
      */
     public void calculateLouvain(String clusters_path) {
@@ -98,12 +99,6 @@ public class Graphe {
                 y++;
             }
         }
-        /*for(int i = 0; i < partition.matrix_Mij.size(); i++){
-            for(int j = 0; j < partition.matrix_Mij.size(); j++){
-                System.out.print(partition.matrix_Mij.get(i).get(j) + " ");
-            }
-            System.out.println("");
-        }*/
         
         this.partition.calculateLouvain(clusters_path, this);
     }
