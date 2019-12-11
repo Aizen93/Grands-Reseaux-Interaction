@@ -1,5 +1,7 @@
 # Grands-Reseaux-Interaction
-Theorie des graphes - tous les algorithmes pratiques
+Theorie des graphes - tous les algorithmes pratiques.
+
+Tous les fichiers de parsage qui contiennent nos graphes sont en format ***Stanford***
 
 - Gaphe TP1
 - Sommet de degre maximum TP1
