@@ -1,0 +1,13 @@
+name: Greetings
+
+on: [pull_request, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: 'Some one need to be assigned to this issue'' first issue'
+        pr-message: 'Replace this text with a brief description of the PR''s content'' first pr'
