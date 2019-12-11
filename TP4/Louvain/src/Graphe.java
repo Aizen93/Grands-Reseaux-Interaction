@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class Graphe {
     int nbr_sommet;      // nombre de sommets
@@ -90,7 +89,6 @@ public class Graphe {
                     if(som2.adjacence != null){
                         if(som1.ID == som2.ID) partition.matrix_Mij.get(y).add(0);
                         else{
-                            //System.out.println(som1.ID + " " + som2.ID);
                             if(som1.contient(som2)) partition.matrix_Mij.get(y).add(1);
                             else partition.matrix_Mij.get(y).add(0);
                         }

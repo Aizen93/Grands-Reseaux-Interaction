@@ -14,9 +14,9 @@ import java.util.PriorityQueue;
 public class Partition {
     
     ArrayList<Cluster> partition;
-    double modularite;
-    ArrayList<ArrayList<Integer>> matrix_Mij;
+    ArrayList<ArrayList<Integer>> matrix_Mij;//a remplacer par une matrice creuse (HashMap)
     PriorityQueue<Paire> paires_modularite;
+    double modularite;
     
     public Partition(){
         this.partition = new ArrayList<>();
@@ -24,6 +24,10 @@ public class Partition {
         paires_modularite = new PriorityQueue<>();
     }
     
+    /**
+     * Adds a cluster to the partition
+     * @param c 
+     */
     public void addCluster(Cluster c){
         this.partition.add(c);
     }
@@ -36,18 +40,22 @@ public class Partition {
         return partition.size();
     }
     
+    /**
+     * Math.pow(a, 2)
+     * @param a
+     * @return 
+     */
     public double sqr(double a){
         return a * a;
     }
     
     /**
-     * Calculate modularité of a graph
-     * Utilise les arretes externes c'est un peu different de la formule donnée en TP
+     * Calculate's the modularity of a graph's partition
      * @param graphe
      */
     public void Q(Graphe graphe){
         double m = graphe.nbr_arete;
-        double Eii = 0.0, Aii = 0.0, Q = 0.0;
+        double Eii = 0.0, Aii = 0.0;
         for(int i = 0; i < partition.size(); i++){
             partition.get(i).calcul_nb_arete(graphe);
             
@@ -57,6 +65,16 @@ public class Partition {
          modularite = Eii - Aii;
     }
     
+    /**
+     * Merges two clusters of indices i and j
+     * and updates the matrix Mij of a cluster 
+     * by adding the edge's sum of the second cluster to the first one
+     * and recalculates the modularity increment of the new pair
+     * then remove's the pairs we don't need from the PriorityQueue
+     * @param i indice of Cluster a
+     * @param j indice of Cluster b
+     * @param graphe 
+     */
     public void fusionner(int i, int j, Graphe graphe){
         if(i < 0 || j < 0) return;
         ArrayList<Paire> recalcul = new ArrayList<>();
@@ -78,7 +96,12 @@ public class Partition {
         });
         calculatePaireModularite(i, 0, graphe);
     }
-
+    
+    /**
+     * Updates the sum of edges of a pair of clusters in the matrix
+     * @param i indice of Cluster a
+     * @param j indice of Cluster b
+     */
     public void updateMatrix(int i, int j){
         for(int k = 0; k < matrix_Mij.get(i).size(); k++){
             matrix_Mij.get(i).set(k, matrix_Mij.get(i).get(k) + matrix_Mij.get(j).get(k));
@@ -89,7 +112,12 @@ public class Partition {
         }
         matrix_Mij.remove(j);
     }
-
+    
+    /**
+     * Merges two clusters into one
+     * @param i indice of Cluster a
+     * @param j indice of Cluster b
+     */
     public void fusion_cluster(int i, int j) {
         Cluster clu1 = partition.get(i);
         Cluster clu2 = partition.get(j);
@@ -97,11 +125,18 @@ public class Partition {
         clu1.somme_degre = clu1.somme_degre + clu2.somme_degre;
         ArrayList<Cluster> tmp = new ArrayList<>();
         for(int k = 0; k < partition.size(); k++){
-            if(k != j)    tmp.add(partition.get(k));
+            if(k != j) tmp.add(partition.get(k));
         }
         partition = tmp;
     }
-
+    
+    /**
+     * Naive method of calculating the sum of edges between two clusters
+     * @param cluster1
+     * @param cluster2
+     * @param g graphe
+     * @return the sum of edges between the two clusters
+     */
     public double m(Cluster cluster1, Cluster cluster2, Graphe g){
         double eij = 0;
         for(int k = 0; k < cluster1.size(); k++){
@@ -115,7 +150,11 @@ public class Partition {
         }
         return eij;
     }
-
+    
+    /**
+     * Initiate method of pair calculations
+     * @param graphe 
+     */
     public void initPaireModularite(Graphe graphe) {
         Instant start = Instant.now();
         for(int i = 0; i < partition.size(); i++) {
@@ -123,49 +162,58 @@ public class Partition {
         }
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();
-        System.out.println("time : "+timeElapsed+" ms");
+        System.out.println("PriorityQueue pair init time : "+timeElapsed+" ms");
     }
-
-    public void calculatePaireModularite(int i, int j, Graphe graphe) {
-        double modu_max = 0, tmp;
+    
+    /**
+     * Calculates the best modularity increment if merging the cluster i with 
+     * all clusters in partition starting from n indice and ignoring the rest
+     * we take the best increment possible out of all pairs
+     * (we don't need to recalculate what has been alrady calculated so we start from n and not 0)
+     * @param i
+     * @param n
+     * @param graphe 
+     */
+    public void calculatePaireModularite(int i, int n, Graphe graphe) {
+        double increment_modu_max = 0, tmp;
         int k = -1;
         Cluster clua = partition.get(i), club;
         double m = graphe.nbr_arete;
-        for (j = 0; j < partition.size(); j++) {
+        for (int j = n; j < partition.size(); j++) {
             if(i != j){
                 club = partition.get(j);
                 tmp = (matrix_Mij.get(i).get(j) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m)))
                         + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
-                if(tmp >= modu_max) {
-                    modu_max = tmp;
+                if(tmp >= increment_modu_max) {
+                    increment_modu_max = tmp;
                     k = j;
                 }
             }
         }
         if (k == i) return;
         if(k == -1) paires_modularite.add(new Paire(partition.get(i), null, -1));
-        else paires_modularite.add(new Paire(partition.get(i), partition.get(k), modu_max));
+        else paires_modularite.add(new Paire(partition.get(i), partition.get(k), increment_modu_max));
     }
     
-    //Version optimisé
+    /**
+     * Optimised version of calculating the modularity increment of <paire> command
+     * @param graphe
+     * @return 
+     */
     public double[] calculatePaire(Graphe graphe){
         double m = graphe.nbr_arete;
         double increment = 0, increment2 = 0;
-        ArrayList<Cluster> originalPartition = partition;
         int pair1 = -1, pair2 = -1;
-        for(int i = 0; i < originalPartition.size(); i++){
-            for(int j = i+1; j < originalPartition.size(); j++){
-                Cluster clua = originalPartition.get(i);
-                Cluster club = originalPartition.get(j);
+        for(int i = 0; i < partition.size(); i++){
+            for(int j = i+1; j < partition.size(); j++){
+                Cluster clua = partition.get(i);
+                Cluster club = partition.get(j);
                 increment2 = (m(partition.get(i), partition.get(j), graphe) / m) - (sqr(clua.somme_degre + club.somme_degre)/(4*sqr(m))) 
                         + (sqr(clua.somme_degre)/(4*sqr(m))) + (sqr(club.somme_degre)/(4*sqr(m)));
                 if(increment2 > increment){
                     pair1 = i; pair2 = j;
                     increment = increment2;
-                    partition = originalPartition;
                     
-                }else{
-                    partition = originalPartition;
                 }
             }
         }
@@ -188,6 +236,8 @@ public class Partition {
             if(p.modularite >= 0) fusionner(partition.indexOf(p.i), partition.indexOf(p.j), graphe);
             p = paires_modularite.poll();
         }
+        
+        /* ----------------------- End of Louvain's Algorithm ----------------------------*/
         
         Instant start = Instant.now();
         FileWriter filewriter = null;
@@ -215,11 +265,13 @@ public class Partition {
         }
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();
-        System.out.println("time writng file: "+timeElapsed+" ms");
+        System.out.println("File <" + cluster_path + "> generated succesfully in : "+timeElapsed+" ms");
         
         
         Q(graphe);
-        System.out.println("Meilleure modularité : " + modularite);
+        System.out.println("-------------------------------------------");
+        System.out.println("| Meilleure modularité : " + modularite);
+        System.out.println("-------------------------------------------");
     }
 
 }

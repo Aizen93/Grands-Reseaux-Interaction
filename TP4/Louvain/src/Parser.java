@@ -6,6 +6,10 @@ import static java.lang.System.exit;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Oussama, Lilya
+ */
 public class Parser {
     
     Graphe G;
@@ -179,7 +183,6 @@ public class Parser {
             try{
                 l.add(intValueOf(item));
                 //l.add(Integer.parseInt(item));
-                //System.out.print(s[i]+" ");
             }catch(NumberFormatException e){
                 System.out.println("Bad format .clu file, please check it again !");
                 System.exit(0);
@@ -213,7 +216,7 @@ public class Parser {
                 cpt++;
             }
         } catch (IOException ex) {
-            System.err.println("Erreur pendant la lecture du fichier "+ path);
+            System.err.println("Erreur pendant la lecture du fichier <"+ path + ">");
         }
 
         if (cpt == 0) {

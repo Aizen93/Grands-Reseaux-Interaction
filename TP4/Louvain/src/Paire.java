@@ -1,6 +1,7 @@
-import java.util.Comparator;
-import java.util.Objects;
-
+/**
+ * 
+ * @author Oussama, Lilya
+ */
 public class Paire implements Comparable<Paire>{
 
     Cluster i, j;
@@ -12,7 +13,11 @@ public class Paire implements Comparable<Paire>{
         this.modularite = modularite;
     }
 
-
+    /**
+     * Abstract method to compare the modularity increment
+     * @param paire
+     * @return 
+     */
     @Override
     public int compareTo(Paire paire) {
         if(paire.modularite > this.modularite) return 1;

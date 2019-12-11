@@ -14,12 +14,20 @@ public class Cluster {
         nb_arete = 0;
     }
     
+    /**
+     * Calculates sum of the edges degre of this cluster
+     * @param graphe 
+     */
     public void calcul_Som_Degre(Graphe graphe){
         for(int k : sommets) {
             somme_degre += graphe.getSommet(k).degre;
         }
     }
-
+    
+    /**
+     * Calculates sum of the internal edges of this cluster
+     * @param g graphe
+     */
     public void calcul_nb_arete(Graphe g) {
         nb_arete = 0;
         if(sommets.size() != 1) {
@@ -34,6 +42,7 @@ public class Cluster {
     public int size(){
         return sommets.size();
     }
+    
     /**
      * Add a node to the cluster
      * @param sommet 
