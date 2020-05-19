@@ -1,3 +1,5 @@
+package core;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -5,6 +7,7 @@ import java.io.IOException;
 import static java.lang.System.exit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * 
@@ -78,8 +81,11 @@ public class Parser {
 	// passe 3 : alloue les sommets et calcule leur degre (sans tenir compte des doublons)
 	int nbloop = 0;
 	G.sommets = new ArrayList<>(G.nbr_sommet);
-	for(int i=0;i<G.nbr_sommet;i++)
-	    G.sommets.add(new Sommet(i));
+	for(int i=0;i<G.nbr_sommet;i++){
+	    Sommet s = new Sommet(i);
+            G.sommets.add(s);
+            G.arcs.arcs.put(s, new HashSet<>());
+        }
 
 	for(int i = 0; i< l; i++){
             int x, y; // juste pour la lisibilité
@@ -94,7 +100,9 @@ public class Parser {
             (G.sommets.get(y).degre)++; // ...et celui de y 
         }
         
-	//if(nbloop > 0) System.out.println(nbloop + " boucles ont été ignorées");
+	if(nbloop > 0){
+            G.boucle = nbloop;
+        }
 
 	// tpasse 4 :  ajoute les aretes. 
 	// d'abord allouons les tableaux d'adjacance
@@ -142,6 +150,7 @@ public class Parser {
 	// on a compté chaque arête deux fois et chaqyue doublon aussi
 	G.nbr_arete /= 2;
 	nbdoubl /= 2;
+        G.doublons = nbdoubl;
         
         //supprimer les sommet de degré 0
         /*for (int i = 0; i < G.sommets.size(); i++){

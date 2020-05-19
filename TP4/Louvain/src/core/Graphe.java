@@ -1,16 +1,25 @@
+package core;
+
+import gui.Arc;
 import java.util.ArrayList;
 
 public class Graphe {
-    int nbr_sommet;      // nombre de sommets
-    int nbr_arete;      // nombre d'aretes
-    int degreMax;   // degre max d'un sommet
-    int somdmax;   // numero du premier sommet atteignant le degré maximum
-    ArrayList<Sommet> sommets; // tableau des sommets. De taille n+1 normalement
+    public int nbr_sommet;      // nombre de sommets
+    public int nbr_arete;      // nombre d'aretes
+    public int degreMax;   // degre max d'un sommet
+    public int boucle;   // nombre de boucle ignorés  
+    public int doublons;   //nombre de doublons
+    public int somdmax;   // numero du premier sommet atteignant le degré maximum
+    public ArrayList<Sommet> sommets; // tableau des sommets. De taille n+1 normalement
     Parser parser;
     Partition partition;
-    
+    public Arc arcs;
+
     public Graphe(){
         this.parser = new Parser(this);
+        this.arcs = new Arc(this);
+        this.doublons = 0;
+        this.boucle = 0;
     }
     
     public Sommet getSommet(int i){
@@ -125,5 +134,48 @@ public class Graphe {
 	for(int i = 0; i <= degreMax; i++) 
 	    System.out.println(i + " " + dgr[i]);
         
+    }
+    
+    public String getStringResult(){
+        return "Nombre de sommets : \n"+ nbr_sommet + "\n"
+            +"---------------------------\n\n"
+            +"Nombre d'aretes : \n"+ nbr_arete + "\n"
+            +"---------------------------\n\n"
+            +"Nombre de doublons : \n"+ doublons + "\n"
+            +"---------------------------\n\n"
+            +"Nombre de boucles\nignorées : "+ boucle + "\n"
+            +"---------------------------\n\n"
+            +"Sommet de degré max\n(de numéro minimal) :\n " + somdmax +"\n"
+            +"---------------------------\n\n"
+            +"Le degré max :"+ degreMax +"\n"
+            +"---------------------------\n\n";
+    }
+    
+    public int getNbr_sommet() {
+        return nbr_sommet;
+    }
+
+    public int getNbr_arete() {
+        return nbr_arete;
+    }
+
+    public int getDegreMax() {
+        return degreMax;
+    }
+
+    public int getSomdmax() {
+        return somdmax;
+    }
+
+    public ArrayList<Sommet> getListSommets() {
+        return sommets;
+    }
+
+    public Parser getParser() {
+        return parser;
+    }
+
+    public Partition getPartition() {
+        return partition;
     }
 }
