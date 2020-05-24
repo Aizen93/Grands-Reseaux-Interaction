@@ -14,7 +14,15 @@ public class Sommet extends Circle{
     public int degre; // son degré.
     public int []adjacence; // tableau d'adjacence. une case = un numero de voisin. sa longueur est degré
     Color default_color;
-    Color hover_color;
+    double radius;
+    Boolean renderer = false;
+
+    public Boolean isRendered() {
+        return renderer;
+    }
+    public void setRendered(Boolean b){
+        this.renderer = b;
+    }
     
     Sommet(int i) {
 	this.ID = i;
@@ -79,18 +87,18 @@ public class Sommet extends Circle{
     public void setGUINode(int x, int y, double radius, Color color){
         this.setFill(color);
         this.setRadius(radius);
+        this.radius = radius;
         this.setCenterX(x);
         this.setCenterY(y);
         this.default_color = color;
-        this.hover_color = Color.CORAL;
     }
     
     public final void applyhoverEffect(){
         this.setOnMouseEntered((MouseEvent t) -> {
-            this.setFill(hover_color);
+            this.setRadius(15);
         });
         this.setOnMouseExited((MouseEvent t) -> {
-            this.setFill(default_color);
+            this.setRadius(this.radius);
         });
     }
     

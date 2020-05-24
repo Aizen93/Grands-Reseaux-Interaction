@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import javafx.scene.paint.Color;
 /**
  *
  * @author Oussama, Lilya
@@ -9,6 +10,7 @@ public class Cluster {
     
     ArrayList<Integer> sommets;
     double somme_degre, nb_arete;
+    Color color;
 
     public Cluster(){
         this.sommets = new ArrayList<>();
@@ -53,4 +55,15 @@ public class Cluster {
         this.sommets.add(sommet);
     }
     
+    public Color getColor(){
+        return this.color;
+    }
+    
+    public void setColor(Color color){
+        this.color = color;
+    }
+    
+    public int getNodeID(int i){
+        return this.sommets.get(i);
+    }
 }

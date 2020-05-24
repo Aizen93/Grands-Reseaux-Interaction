@@ -1,9 +1,14 @@
 package gui;
 
+import core.Cluster;
 import core.Sommet;
 import core.Graphe;
+import gui.simulation3d.MathUtils;
+import gui.simulation3d.World;
 import java.io.File;
 import java.net.URL;
+import java.time.Instant;
+import java.time.Duration;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
@@ -28,7 +33,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
+import javafx.scene.text.TextFlow;
 
 /**
  * FXML Controller class
@@ -36,6 +41,9 @@ import javafx.util.Duration;
  * @author Oussama
  */
 public class InterfaceController implements Initializable {
+    /**
+     * FXML variables using the ID's of the FXMLInterface file
+     */
     @FXML
     ProgressIndicator bar;
     @FXML
@@ -43,7 +51,7 @@ public class InterfaceController implements Initializable {
     @FXML
     AnchorPane titledpane_pane, anchorPane;
     @FXML
-    ScrollPane scroll, scroll2;
+    ScrollPane scroll, scroll2, cluster_info;
     @FXML
     StackedAreaChart<Number, Number> areaChart;
     @FXML
@@ -52,24 +60,21 @@ public class InterfaceController implements Initializable {
     TableView<DegreDistribution> distribution;
     @FXML
     TableColumn<Integer, Integer> degre_view, total_view;
+    //-------------------------------------------------------------
     
+    /**
+     * General variables needed
+     */
+    Pane pane;
+    Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 11);
+    private Random rand = new Random();
     private final ObservableList<DegreDistribution> distribution_model = FXCollections.observableArrayList();
     private final DialogPopUp dialog = new DialogPopUp();
-    Pane pane;
-    Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 12);
-    int lehmer = 1, rangeX = 0, rangeY = 0;
-    Random rand = new Random();
+    private int rangeX = 0, rangeY = 0;
+    Instant start;
+    //-------------------------------------------------------------
     
-    private int lehmerRandom(int min, int max, int seed){
-        lehmer = seed >> 16 | seed;
-        lehmer += 0xe120fc15;
-        long tmp;
-        tmp = (long)lehmer * 0x4a39b70d;
-        long m1 = (tmp << 32) ^ tmp;
-        tmp = m1 * 0x12fad5c9;
-        long m2 = (tmp << 32) ^ tmp;
-        return (Math.abs((int)m2) % (max - min))+ min;
-    }
+    
     
     public void buildArcs(Graphe graphe){
         graphe.getListSommets().forEach((sommet) -> {
@@ -81,7 +86,9 @@ public class InterfaceController implements Initializable {
                         Sommet B = graphe.getSommet(adj);
                         Line line = new Line(sommet.getCenterX(), sommet.getCenterY(), B.getCenterX(), B.getCenterY());
                         line.setStrokeWidth(0.5);
+                        
                         if(sommet.degre == graphe.degreMax || B.degre == graphe.degreMax) line.setStroke(Color.YELLOW);
+                        else line.setStroke(Color.ORANGE);
                         pane.getChildren().add(line);
                     }
                 }
@@ -93,8 +100,8 @@ public class InterfaceController implements Initializable {
         });
     }
     
-    private void buildNodes(Graphe graphe, Sommet sommet, int x, int y){
-        sommet.setGUINode(x, y, (sommet.getDegre() == graphe.degreMax ? 10 : 4), (sommet.getDegre() == graphe.degreMax ? Color.RED : Color.GREEN));
+    private void buildNodes(Graphe graphe, Sommet sommet, int x, int y, Color color){
+        sommet.setGUINode(x, y, (sommet.getDegre() == graphe.degreMax ? 10 : 4), (sommet.getDegre() == graphe.degreMax ? Color.RED : color));
         sommet.applyhoverEffect();
         sommet.applyHandlers(popup, titledpane_pane, scroll, arcade);
 
@@ -129,6 +136,30 @@ public class InterfaceController implements Initializable {
         areaChart.getData().add(seriesdegre);
     }
     
+    private void fillGeneralInfo(Graphe graphe, long time){
+        graph_info.setText(graphe.getStringResult()+"\nBuild time : "+time+" ms");
+        graph_info.setFill(Color.BLACK);
+        graph_info.setFont(arcade);
+    }
+    
+    private void fillClusterInfo(Graphe graphe){
+        TextFlow flow = new TextFlow();
+        Text info = new Text(graphe.partition.getInfo());
+        info.setFill(Color.BLACK);
+        info.setFont(arcade);
+        flow.getChildren().add(info);
+        for(int i = 0; i < graphe.partition.size(); i++){
+            Cluster clu = graphe.partition.getCluster(i);
+            clu.setColor(MathUtils.randomColor());
+            Text tmp = new Text("\n Cluster " + i +" : ->" + clu.size()+"\n");
+            tmp.setFill(clu.getColor());
+            tmp.setFont(arcade);
+            flow.getChildren().add(tmp);
+        }
+        cluster_info.setContent(flow);
+        flow.setPrefSize(cluster_info.getWidth()-5, cluster_info.getHeight());
+    }
+    
     private String getPath(){
         String path = "";
         File file = this.dialog.openFile(anchorPane);
@@ -141,12 +172,13 @@ public class InterfaceController implements Initializable {
     @FXML
     private void randomVisual(ActionEvent event) {
         pane.getChildren().clear();
-        lehmer = 0;
+        MathUtils.lehmer = 0;
         String path = getPath();
         bar.setVisible(true);
         Task task = new Task<Void>() {
             @Override 
             public Void call() {
+                Instant start = Instant.now();
                 Graphe graphe = new Graphe();
                 graphe.generateGraphe(path);
                 succeeded();
@@ -154,17 +186,17 @@ public class InterfaceController implements Initializable {
                 pane.setPrefSize(range, range);
                 Platform.runLater(() -> {
                     graphe.getListSommets().forEach((sommet) -> {
-                        int x = lehmerRandom(5, range - 5, rand.nextInt());
-                        int y = lehmerRandom(5, range - 5, rand.nextInt());
-                        buildNodes(graphe, sommet, x, y);
+                        int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                        int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                        buildNodes(graphe, sommet, x, y, Color.GREEN);
                     });
                     buildArcs(graphe);
+                    Instant finish = Instant.now();
+                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
+                    fillGeneralInfo(graphe, timeElapsed);
                     fillDistributionView(graphe);
                     bar.setVisible(false);
                 });
-                graph_info.setText(graphe.getStringResult());
-                graph_info.setFill(Color.BLACK);
-                graph_info.setFont(arcade);
                 return null;
             }
         };
@@ -175,22 +207,22 @@ public class InterfaceController implements Initializable {
     @FXML
     private void gridVisual(ActionEvent event) {
         pane.getChildren().clear();
-        lehmer = 0;
+        MathUtils.lehmer = 0;
         String path = getPath();
         bar.setVisible(true);
         Task task = new Task<Void>() {
             @Override 
             public Void call() {
+                Instant start = Instant.now();
                 Graphe graphe = new Graphe();
                 graphe.generateGraphe(path);
                 succeeded();
                 rangeX = (graphe.nbr_sommet < 200 ? 200 : graphe.nbr_sommet/2);
-                
                 Platform.runLater(() -> {
                     int x = 10;
                     rangeY = 10;
                     for (Sommet sommet : graphe.getListSommets()) {
-                        buildNodes(graphe, sommet, x, rangeY);
+                        buildNodes(graphe, sommet, x, rangeY, Color.GREEN);
                         x += 40;
                         if(x >= rangeX){
                             x = 10;
@@ -199,17 +231,87 @@ public class InterfaceController implements Initializable {
                     }
                     pane.setPrefSize(rangeX+10, rangeY+10);
                     buildArcs(graphe);
+                    Instant finish = Instant.now();
+                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
+                    fillGeneralInfo(graphe, timeElapsed);
                     fillDistributionView(graphe);
                     bar.setVisible(false);
                 });
-                graph_info.setText(graphe.getStringResult());
-                graph_info.setFill(Color.BLACK);
-                graph_info.setFont(arcade);
+                
                 return null;
             }
         };
         bar.progressProperty().bind(task.progressProperty());
         new Thread(task).start();
+    }
+    
+    @FXML
+    private void clusterRandomVisual(ActionEvent event){
+        pane.getChildren().clear();
+        MathUtils.lehmer = 0;
+        String path = getPath();
+        bar.setVisible(true);
+        Task task = new Task<Void>() {
+            @Override 
+            public Void call() {
+                startTime(Instant.now());
+                Graphe graphe = new Graphe();
+                graphe.generateGraphe(path);
+                graphe.calculateLouvain("src/assets/ClusterLouvain.clu");
+                
+                finishTime(Instant.now(), "Fini graphe in");
+                succeeded();
+                int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
+                pane.setPrefSize(range, range);
+                Platform.runLater(() -> {
+                    fillClusterInfo(graphe);
+                    
+                    startTime(Instant.now());
+                    graphe.partition.getPartition().forEach((clu) -> {
+                        for(int i = 0; i < clu.size(); i++){
+                            int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                            int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                            buildNodes(graphe, graphe.getSommet(clu.getNodeID(i)), x, y, clu.getColor());
+                        }
+                        
+                    });
+                    finishTime(Instant.now(), "Fini buildnodes in");
+                    
+                    startTime(Instant.now());
+                    buildArcs(graphe);
+                    finishTime(Instant.now(), "Fini ARCS in");
+                    
+                    Instant finish = Instant.now();
+                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
+                    fillGeneralInfo(graphe, timeElapsed);
+                    System.out.println("Fini general info");
+                    
+                    startTime(Instant.now());
+                    fillDistributionView(graphe);
+                    finishTime(Instant.now(), "Fini TableView in");
+                    
+                    bar.setVisible(false);
+                });
+                return null;
+            }
+        };
+        bar.progressProperty().bind(task.progressProperty());
+        new Thread(task).start();
+    }
+    
+    
+    @FXML
+    private void visual3D(ActionEvent event){
+        Graphe graphe = new Graphe();
+        graphe.generateGraphe(getPath());
+        World world = new World(graphe);
+        world.buildWorld();
+        //world.addLight();
+    }
+    
+    @FXML
+    private void testAlgos(ActionEvent event){
+        
     }
     
     @FXML
@@ -222,6 +324,15 @@ public class InterfaceController implements Initializable {
         Platform.exit();
     }
     
+    private void startTime(Instant start){
+        this.start = start;
+    }
+    
+    private void finishTime(Instant finish, String message){
+        long timeElapsed = Duration.between(this.start, finish).toMillis();
+        System.out.println(message + " : "+timeElapsed + " ms");
+    }
+    
     /**
      * Initializes the controller class.
      * @param url
@@ -229,8 +340,8 @@ public class InterfaceController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        PauseTransition delay = new PauseTransition(Duration.millis(1000));
-        delay.setOnFinished(eventt -> {
+        PauseTransition delay = new PauseTransition(javafx.util.Duration.millis(1000));
+        delay.setOnFinished(event -> {
             pane = new Pane();
             pane.setPrefSize(1500, 1000);
             pane.setStyle("-fx-background-color: gray;");

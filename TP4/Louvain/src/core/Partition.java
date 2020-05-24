@@ -15,11 +15,12 @@ import java.util.PriorityQueue;
  */
 public class Partition {
     
-    ArrayList<Cluster> partition;
+    public ArrayList<Cluster> partition;
     ArrayList<ArrayList<Integer>> matrix_Mij;//a remplacer par une matrice creuse (HashMap)
     PriorityQueue<Paire> paires_modularite;
     double modularite;
-    
+    String info = "";
+
     public Partition(){
         this.partition = new ArrayList<>();
         this.modularite = 0.0;
@@ -165,6 +166,8 @@ public class Partition {
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();
         System.out.println("PriorityQueue pair init time : "+timeElapsed+" ms");
+        info += "- PriorityQueue pair init time :\n"+timeElapsed+" ms\n";
+        info += "-------------------------\n";
     }
     
     /**
@@ -268,12 +271,41 @@ public class Partition {
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();
         System.out.println("File <" + cluster_path + "> generated succesfully in : "+timeElapsed+" ms");
-        
+        info += "- File <" + cluster_path + "> generated succesfully in :\n"+timeElapsed+" ms\n";
+        info += "-------------------------\n";
         
         Q(graphe);
         System.out.println("-------------------------------------------");
         System.out.println("| Meilleure modularité : " + modularite);
         System.out.println("-------------------------------------------");
+        info += "- Meilleure modularité : " + modularite;
+        info += "\n-------------------------\n";
+        info += "- Il y a " + graphe.partition.size() + " Clusters\n";
+        
+    }
+    
+    public int getMaxsizeCluster(){
+        int max = -1;
+        for(Cluster clu : partition){
+            if(clu.size() > max) max = clu.size();
+        }
+        return max;
+    }
+    
+    public double getModularite() {
+        return modularite;
+    }
+    
+    public String getInfo(){
+        return info;
+    }
+    
+    public Cluster getCluster(int i){
+        return this.partition.get(i);
+    }
+    
+    public ArrayList<Cluster> getPartition(){
+        return this.partition;
     }
 
 }

@@ -18,7 +18,12 @@ public class Arc {
             this.arcs.put(som, new HashSet<>());
         }*/
     }
-    
+    /**
+     * O(2) Complexity 
+     * @param A
+     * @param B
+     * @return 
+     */
     public boolean isExist(Sommet A, int B){
         if(!arcs.get(A).isEmpty()){
             return arcs.get(A).contains(B);

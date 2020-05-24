@@ -1,5 +1,3 @@
-package gui;
-
 
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -16,7 +14,7 @@ public class GraphInterface extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLInterface.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/gui/FXMLInterface.fxml"));
         
         Scene scene = new Scene(root);
         //stage.setMaximized(true);

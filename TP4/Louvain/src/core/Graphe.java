@@ -12,7 +12,7 @@ public class Graphe {
     public int somdmax;   // numero du premier sommet atteignant le degré maximum
     public ArrayList<Sommet> sommets; // tableau des sommets. De taille n+1 normalement
     Parser parser;
-    Partition partition;
+    public Partition partition;
     public Arc arcs;
 
     public Graphe(){
@@ -66,12 +66,12 @@ public class Graphe {
         
         double[] res = this.partition.calculatePaire(this);
         if(res[0] != -1){
-            for(int i = 0; i < partition.partition.get((int)res[0]).size(); i++){
-                System.out.print(partition.partition.get((int)res[0]).sommets.get(i) + " ");
+            for(int i = 0; i < partition.getPartition().get((int)res[0]).size(); i++){
+                System.out.print(partition.getPartition().get((int)res[0]).sommets.get(i) + " ");
             }
             System.out.println("");
-            for(int i = 0; i < partition.partition.get((int)res[1]).size(); i++){
-                System.out.print(partition.partition.get((int)res[1]).sommets.get(i) + " ");
+            for(int i = 0; i < partition.getPartition().get((int)res[1]).size(); i++){
+                System.out.print(partition.getPartition().get((int)res[1]).sommets.get(i) + " ");
             }
             System.out.println("");
             System.out.println("incrément de modularité : " + res[2]);
@@ -147,7 +147,7 @@ public class Graphe {
             +"---------------------------\n\n"
             +"Sommet de degré max\n(de numéro minimal) :\n " + somdmax +"\n"
             +"---------------------------\n\n"
-            +"Le degré max :"+ degreMax +"\n"
+            +"Le degré max : "+ degreMax +"\n"
             +"---------------------------\n\n";
     }
     
