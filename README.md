@@ -19,5 +19,5 @@ Tous les fichiers de parsage qui contiennent nos graphes sont en format ***Stanf
 - Clustring TP4
 - ...etc
 
-
+![Imgur](https://imgur.com/q5HAPyo.png)
 ![Graphe](http://sna433.weebly.com/uploads/1/3/9/3/13930242/7562313_orig.png)
