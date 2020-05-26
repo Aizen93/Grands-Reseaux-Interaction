@@ -9,6 +9,8 @@ import java.io.File;
 import java.net.URL;
 import java.time.Instant;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
@@ -34,6 +36,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.animation.*;
+import javafx.scene.Group;
 
 /**
  * FXML Controller class
@@ -65,13 +69,15 @@ public class InterfaceController implements Initializable {
     /**
      * General variables needed
      */
-    Pane pane;
-    Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 11);
-    private Random rand = new Random();
+    private Pane pane;
+    private final Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 11);
+    private final Random rand = new Random();
     private final ObservableList<DegreDistribution> distribution_model = FXCollections.observableArrayList();
     private final DialogPopUp dialog = new DialogPopUp();
+    private final Group short_path = new Group();
     private int rangeX = 0, rangeY = 0;
-    Instant start;
+    private Instant start;
+    private Graphe graphe;
     //-------------------------------------------------------------
     
     
@@ -179,7 +185,7 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 Instant start = Instant.now();
-                Graphe graphe = new Graphe();
+                graphe = new Graphe();
                 graphe.generateGraphe(path);
                 succeeded();
                 int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
@@ -214,7 +220,7 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 Instant start = Instant.now();
-                Graphe graphe = new Graphe();
+                graphe = new Graphe();
                 graphe.generateGraphe(path);
                 succeeded();
                 rangeX = (graphe.nbr_sommet < 200 ? 200 : graphe.nbr_sommet/2);
@@ -255,7 +261,7 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 startTime(Instant.now());
-                Graphe graphe = new Graphe();
+                graphe = new Graphe();
                 graphe.generateGraphe(path);
                 graphe.calculateLouvain("src/assets/ClusterLouvain.clu");
                 
@@ -302,16 +308,98 @@ public class InterfaceController implements Initializable {
     
     @FXML
     private void visual3D(ActionEvent event){
-        Graphe graphe = new Graphe();
+        graphe = new Graphe();
         graphe.generateGraphe(getPath());
         World world = new World(graphe);
         world.buildWorld();
         //world.addLight();
     }
     
+    public void animateEdgeBetween(Sommet som1, Sommet som2){
+        Line line = new Line(som1.getCenterX(), som1.getCenterY(), som2.getCenterX(), som2.getCenterY());
+        line.getStrokeDashArray().setAll(25d, 20d, 10d, 20d);
+        line.setStrokeWidth(1);
+        short_path.getChildren().add(line);
+        
+        som1.toFront();
+        som2.toFront();
+        double maxOffset = line.getStrokeDashArray().stream().reduce(0d, (a, b) -> a - b);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        javafx.util.Duration.ZERO, 
+                        new KeyValue(
+                                line.strokeDashOffsetProperty(), 
+                                0, 
+                                Interpolator.LINEAR
+                        )
+                ),
+                new KeyFrame(
+                        javafx.util.Duration.seconds(1), 
+                        new KeyValue(
+                                line.strokeDashOffsetProperty(), 
+                                maxOffset, 
+                                Interpolator.LINEAR
+                        )
+                )
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+    }
+    
+    @FXML
+    private void drawShortestPath(ActionEvent event) {
+        if(graphe != null){    
+            short_path.getChildren().clear();
+            pane.getChildren().remove(short_path);
+            pane.getChildren().add(short_path);
+            int[] nodes = this.dialog.getStartEndNodes(graphe);
+            if(nodes[0] != -1){
+                LinkedList<Integer> path = MathUtils.findShortestPath(graphe.sommets, nodes[0], nodes[2], graphe.nbr_sommet);
+                if(!path.isEmpty()){
+                    // Print path 
+                    System.out.println("Path is :"); 
+                    for (int i = 0; i < path.size() - 1; i++) {
+                        System.out.print(path.get(i) + "<-->" + path.get(i+1)+"\n"); 
+                        animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+                    }
+                }else{
+                    this.dialog.showMessage("Given source and destination nodes are not connected\n"
+                        + "Le sommet de départ et d'arrivé ne sont pas connectées");
+                }
+            }
+        }else{
+            this.dialog.showMessage("Nothing imported yet, Please import a graph "
+                    + "using one of the display buttons");
+        }
+    } 
+    
     @FXML
     private void testAlgos(ActionEvent event){
-        
+        /*pane.getChildren().clear();
+        MathUtils.lehmer = 0;
+        String path = getPath();
+        bar.setVisible(true);
+        Task task = new Task<Void>() {
+            @Override 
+            public Void call() {
+                startTime(Instant.now());
+                Graphe graphe = new Graphe();
+                graphe.generateGraphe(path);
+                finishTime(Instant.now(), graphe.nbr_sommet+" "+graphe.nbr_arete +"Graphe parseé en : ");
+                
+                 
+                
+                succeeded();
+                Platform.runLater(() -> {
+                    
+                    bar.setVisible(false);
+                });
+                return null;
+            }
+        };
+        bar.progressProperty().bind(task.progressProperty());
+        new Thread(task).start();*/
     }
     
     @FXML
@@ -348,7 +436,6 @@ public class InterfaceController implements Initializable {
 
             ZoomableScrollPane sc = new ZoomableScrollPane(pane);
             scroll2.setContent(sc.outerNode(sc.zoomNode));
-            
         } );
         delay.play();
     }    

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gui.simulation3d;
 
 import core.Graphe;
@@ -76,7 +71,7 @@ public class World {
     private void buildTextArea(){
         TextFlow tf = new TextFlow();
         tf.setPrefSize(200, 200);
-        tf.relocate(5, 650);
+        tf.relocate(5, 20);
         tf.setStyle( "-fx-border-color: white;-fx-border-insets: 3;\n"
                 + "-fx-border-width: 1;-fx-border-style: dashed;\n");
         
@@ -102,7 +97,7 @@ public class World {
         double angle = Math.acos(diff.normalize().dotProduct(yAxis));
         Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRotation);
 
-        Cylinder line = new Cylinder(0.2, height);
+        Cylinder line = new Cylinder(0.5, height);
         line.setCache(true);
         line.setCacheHint(CacheHint.SPEED);
         line.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
@@ -121,11 +116,11 @@ public class World {
             Box b2;
             if(sommet.degre == graphe.degreMax){
                 material2 = new PhongMaterial(Color.RED);
-                b2 = new Box(25, 25, 25);
+                b2 = new Box(50, 50, 50);
             }
             else{
                 material2 = new PhongMaterial(Color.GREEN);
-                b2 = new Box(10, 10, 10);
+                b2 = new Box(30, 30, 30);
             }
             b2.setCache(true);
             b2.setCacheHint(CacheHint.SPEED);

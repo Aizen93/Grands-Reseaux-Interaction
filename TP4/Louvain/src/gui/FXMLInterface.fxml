@@ -76,8 +76,9 @@
             <Button mnemonicParsing="false" onAction="#gridVisual" prefHeight="47.0" prefWidth="252.0" text="Grid display graph" />
             <Button fx:id="random_algo" mnemonicParsing="false" onAction="#randomVisual" prefHeight="47.0" prefWidth="252.0" text="Random display graph" GridPane.columnIndex="1" />
             <Button fx:id="random_algo2" mnemonicParsing="false" onAction="#clusterRandomVisual" prefHeight="47.0" prefWidth="252.0" text="Cluster display random within" GridPane.rowIndex="1" />
-            <Button mnemonicParsing="false" onAction="#testAlgos" prefHeight="47.0" prefWidth="252.0" text="TEST BUTTON" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button mnemonicParsing="false" onAction="#testAlgos" prefHeight="47.0" prefWidth="252.0" text="TEST BUTTON" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Button fx:id="random_algo21" mnemonicParsing="false" onAction="#visual3D" prefHeight="47.0" prefWidth="252.0" text="3D simulation" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" onAction="#drawShortestPath" prefHeight="47.0" prefWidth="252.0" text="Shortest Path" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
       <Circle fill="RED" layoutX="26.0" layoutY="40.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
