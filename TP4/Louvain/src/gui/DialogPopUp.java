@@ -110,9 +110,11 @@ public class DialogPopUp {
     
     /**
      * renvoie les coordonnées d'un cube et sa taille
+     * @param graphe
+     * @param stop
      * @return tableau de int (n, x,y,z, width)
      */
-    public int[] getStartEndNodes(Graphe graphe){
+    public int[] getStartEndNodes(Graphe graphe, boolean stop){
         int[] path = new int[]{-1, -1, -1};
         Dialog dialog = new Dialog<>();
         dialog.setTitle("Shortest Path between node A and a node B !");
@@ -137,6 +139,7 @@ public class DialogPopUp {
         
         TextField stop_node = new TextField();
         stop_node.setPromptText("Stop node ID...");
+        if(!stop) stop_node.setDisable(true);
         
         TextField dest_node = new TextField();
         dest_node.setPromptText("Stop node ID...");
@@ -152,9 +155,12 @@ public class DialogPopUp {
         
         btOk.addEventFilter(ActionEvent.ACTION, event -> {
             try{
-                int node1 = Integer.parseInt(start_node.getText());
-                int node2 = Integer.parseInt(stop_node.getText());
-                int node3 = Integer.parseInt(dest_node.getText());
+                int node1, node2, node3;
+                node1 = Integer.parseInt(start_node.getText());
+                if(stop) node2 = Integer.parseInt(stop_node.getText());
+                else node2 = 0;
+                node3 = Integer.parseInt(dest_node.getText());
+            
                 if(node1 < 0 || node2 < 0 || node3 < 0){
                     m.setText("One of the textfields are negative value\nUn des Text field est negative!");
                     event.consume();
@@ -166,6 +172,9 @@ public class DialogPopUp {
                     event.consume();
                 } else if(graphe.getSommet(node3) == null){
                     m.setText("Destination node doesn't exist !");
+                    event.consume();
+                } else if(node1 == node2 || node2 == node3 || node1 == node3){
+                    m.setText("There is no path from a node to it self !");
                     event.consume();
                 }else{
                     path[0] = node1;

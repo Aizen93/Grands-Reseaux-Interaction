@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
@@ -38,6 +39,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.animation.*;
 import javafx.scene.Group;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 
 /**
  * FXML Controller class
@@ -61,9 +64,13 @@ public class InterfaceController implements Initializable {
     @FXML
     Text graph_info;
     @FXML
+    TextField path_text;
+    @FXML
     TableView<DegreDistribution> distribution;
     @FXML
     TableColumn<Integer, Integer> degre_view, total_view;
+    @FXML
+    ToolBar toolbar;
     //-------------------------------------------------------------
     
     /**
@@ -318,7 +325,7 @@ public class InterfaceController implements Initializable {
     public void animateEdgeBetween(Sommet som1, Sommet som2){
         Line line = new Line(som1.getCenterX(), som1.getCenterY(), som2.getCenterX(), som2.getCenterY());
         line.getStrokeDashArray().setAll(25d, 20d, 10d, 20d);
-        line.setStrokeWidth(1);
+        line.setStrokeWidth(6);
         short_path.getChildren().add(line);
         
         som1.toFront();
@@ -349,30 +356,95 @@ public class InterfaceController implements Initializable {
     
     @FXML
     private void drawShortestPath(ActionEvent event) {
-        if(graphe != null){    
+        if(graphe != null){  
             short_path.getChildren().clear();
             pane.getChildren().remove(short_path);
             pane.getChildren().add(short_path);
-            int[] nodes = this.dialog.getStartEndNodes(graphe);
-            if(nodes[0] != -1){
-                LinkedList<Integer> path = MathUtils.findShortestPath(graphe.sommets, nodes[0], nodes[2], graphe.nbr_sommet);
-                if(!path.isEmpty()){
-                    // Print path 
-                    System.out.println("Path is :"); 
-                    for (int i = 0; i < path.size() - 1; i++) {
-                        System.out.print(path.get(i) + "<-->" + path.get(i+1)+"\n"); 
-                        animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+            if(graphe != null){
+                int[] nodes = dialog.getStartEndNodes(graphe, false);
+                if(nodes[0] == -1) return;
+                bar.setVisible(true);
+                Task task = new Task<Void>() {
+                @Override 
+                public Void call() {
+                    ArrayList<Integer> path = MathUtils.findShortestPath(graphe.sommets, nodes[0], nodes[2], graphe.nbr_sommet);
+                    Platform.runLater(() -> {
+                        if(!path.isEmpty()){
+                            String s = "";
+                            for (int i = 0; i < path.size() - 1; i++) {
+                                s += path.get(i)+"-->";
+                                animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+                            }
+                            s += path.get(path.size()-1);
+                            toolbar.setVisible(true);
+                            toolbar.toFront();
+                            path_text.setText(s);
+                        }else{
+                            dialog.showMessage("- Given source and destination nodes are not connected\n"
+                                + "- Le sommet de départ et d'arrivé ne sont pas connectées");
+                        }
+                        bar.setVisible(false);
+                    });
+                    succeeded();
+                    System.out.println("FINI");
+                    return null;
                     }
-                }else{
-                    this.dialog.showMessage("Given source and destination nodes are not connected\n"
-                        + "Le sommet de départ et d'arrivé ne sont pas connectées");
-                }
+                };
+                bar.progressProperty().bind(task.progressProperty());
+                new Thread(task).start();
+
             }
         }else{
-            this.dialog.showMessage("Nothing imported yet, Please import a graph "
+            dialog.showMessage("Nothing imported yet, Please import a graph "
                     + "using one of the display buttons");
         }
     } 
+    
+    @FXML
+    private void drawShortestPathThroughStop(ActionEvent event) {
+        if(graphe != null){  
+            short_path.getChildren().clear();
+            pane.getChildren().remove(short_path);
+            pane.getChildren().add(short_path);
+            int[] nodes = dialog.getStartEndNodes(graphe, true);
+            if(nodes[0] == -1) return;
+            if(graphe != null){
+                bar.setVisible(true);
+                Task task = new Task<Void>() {
+                @Override 
+                public Void call() {
+                    ArrayList<Integer> path = MathUtils.findAllShortestPaths(nodes[0], nodes[1], nodes[2], graphe);
+                    Platform.runLater(() -> {
+                        if(!path.isEmpty()){
+                            String s = ""; 
+                            for (int i = 0; i < path.size() - 1; i++) {
+                                s += (path.get(i) == nodes[1] ? "["+nodes[1]+"]" : ""+path.get(i))+"-->";
+                                animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+                            }
+                            s += path.get(path.size()-1);
+                            toolbar.setVisible(true);
+                            toolbar.toFront();
+                            path_text.setText(s);
+                        }else{
+                            dialog.showMessage("- Given source and destination nodes are not connected\n"
+                                + "- Le sommet de départ et d'arrivé ne sont pas connectées");
+                        }
+                        bar.setVisible(false);
+                    });
+                    succeeded();
+                    System.out.println("FINI");
+                    return null;
+                    }
+                };
+                bar.progressProperty().bind(task.progressProperty());
+                new Thread(task).start();
+
+            }
+        }else{
+            dialog.showMessage("Nothing imported yet, Please import a graph "
+                    + "using one of the display buttons");
+        }
+    }
     
     @FXML
     private void testAlgos(ActionEvent event){
@@ -384,7 +456,7 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 startTime(Instant.now());
-                Graphe graphe = new Graphe();
+                graphe = new Graphe();
                 graphe.generateGraphe(path);
                 finishTime(Instant.now(), graphe.nbr_sommet+" "+graphe.nbr_arete +"Graphe parseé en : ");
                 
