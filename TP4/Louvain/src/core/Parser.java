@@ -21,7 +21,7 @@ public class Parser {
         this.G = graphe;
     }
     
-    public void parseStanfordFormat(String filename) {
+    public int parseStanfordFormat(String filename) {
 	// lecture du graphe, recopiée du TP1 
 	
 	// passe 1 : compte les lignes
@@ -32,8 +32,7 @@ public class Parser {
 		compteur++;
 	    read.close(); 
 	}catch (IOException e) {
-            System.out.println("Erreur entree/sortie sur "+filename);
-            System.exit(1);
+            return -1;
 	}
 
 	// Passe 2 : lit le fichier et construit un tableau
@@ -61,7 +60,7 @@ public class Parser {
                     }
                     if(c < '0' || c > '9'){
                         System.out.println("Erreur format ligne "+l+"c = "+c+" valeur "+(int)c);
-                        System.exit(1);
+                        return -1;
                     }
                     a = 10*a + c - '0';
                 }
@@ -75,7 +74,7 @@ public class Parser {
 	    read.close(); // dernier close() le fichier d'entrée ne sera plus rouvert
 	}catch (IOException e) {
 	    System.out.println("Erreur entree/sortie sur "+filename);
-	    System.exit(1);
+	    return -1;
 	}
 
 	// passe 3 : alloue les sommets et calcule leur degre (sans tenir compte des doublons)
@@ -162,6 +161,7 @@ public class Parser {
         }*/
         
 	//if(nbdoubl >0) System.out.println(nbdoubl+" doublons ont ete supprimes");
+        return 1;
     }
     
     public int intValueOf(String str){

@@ -139,7 +139,7 @@
                   </AnchorPane>
             </content>
           </TitledPane>
-          <TitledPane text="Clustring">
+          <TitledPane text="Clustring (Louvain Algorithm)">
                <content>
                   <ScrollPane fx:id="cluster_info" pannable="true" prefHeight="200.0" prefWidth="200.0">
                      <padding>
@@ -174,9 +174,9 @@
       </TabPane>
       <ProgressIndicator fx:id="bar" prefHeight="272.0" prefWidth="462.0" visible="false" AnchorPane.bottomAnchor="300.0" AnchorPane.leftAnchor="650.0" AnchorPane.rightAnchor="250.0" AnchorPane.topAnchor="200.0" />
       <Text layoutX="12.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Unweighted, undericted graphs only for now" wrappingWidth="283.154296875" />
-      <ToolBar fx:id="toolbar" prefHeight="35.0" prefWidth="504.0" AnchorPane.leftAnchor="309.0" AnchorPane.topAnchor="56.0">
+      <ToolBar fx:id="toolbar" minHeight="20.0" prefHeight="20.0" prefWidth="805.0" style="-fx-background-color: transparent;" AnchorPane.leftAnchor="515.0" AnchorPane.topAnchor="30.0">
          <items>
-            <TextField fx:id="path_text" editable="false" prefHeight="25.0" prefWidth="489.0" />
+            <TextField fx:id="path_text" editable="false" minHeight="20.0" prefHeight="20.0" prefWidth="779.0" />
          </items>
       </ToolBar>
    </children>

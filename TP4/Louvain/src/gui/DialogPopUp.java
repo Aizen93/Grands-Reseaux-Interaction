@@ -43,7 +43,7 @@ public class DialogPopUp {
      * @param ex
      * @param context 
      */
-    public void showAlert(Exception ex, String context){
+    public static void showAlert(Exception ex, String context){
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("Alert, an exception catched somewhere");
@@ -79,7 +79,7 @@ public class DialogPopUp {
      * Affiche un message a l'utilisateur pour l'informer
      * @param m 
      */
-    public void showMessage(String m){
+    public static void showMessage(String m){
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Error Message");
         alert.setHeaderText(null);
@@ -101,7 +101,7 @@ public class DialogPopUp {
      * @param mainAnchor
      * @return un fichier
      */
-    public File openFile(AnchorPane mainAnchor){
+    public static File openFile(AnchorPane mainAnchor){
         final FileChooser fileChooser = new FileChooser();
         configureFileChooser(fileChooser);
         File file = fileChooser.showOpenDialog(mainAnchor.getScene().getWindow());
@@ -114,7 +114,7 @@ public class DialogPopUp {
      * @param stop
      * @return tableau de int (n, x,y,z, width)
      */
-    public int[] getStartEndNodes(Graphe graphe, boolean stop){
+    public static int[] getStartEndNodes(Graphe graphe, boolean stop){
         int[] path = new int[]{-1, -1, -1};
         Dialog dialog = new Dialog<>();
         dialog.setTitle("Shortest Path between node A and a node B !");

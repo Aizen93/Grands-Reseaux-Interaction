@@ -1,6 +1,7 @@
 package core;
 
 import gui.Arc;
+import gui.DialogPopUp;
 import java.util.ArrayList;
 
 public class Graphe {
@@ -29,8 +30,8 @@ public class Graphe {
         return null;
     }
     
-    public void generateGraphe(String stanford_path){
-	this.parser.parseStanfordFormat(stanford_path);
+    public int generateGraphe(String stanford_path){
+	return this.parser.parseStanfordFormat(stanford_path);
     }
     
     /**
