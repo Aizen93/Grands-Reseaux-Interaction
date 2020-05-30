@@ -134,10 +134,10 @@ public class InterfaceController implements Initializable {
         total_view.setCellValueFactory(new PropertyValueFactory<>("Total_node"));
         
         distribution.setItems(distribution_model);
-        fillAreaChart(g, dgr);
+        fillAreaChart(dgr);
     }
     
-    private void fillAreaChart(Graphe g, int[] dgr){
+    private void fillAreaChart(int[] dgr){
         areaChart.getData().clear();
         areaChart.setTitle("Suivi de la distribution de degre !");
         XYChart.Series<Number, Number> seriesdegre = new XYChart.Series<>();
@@ -282,6 +282,7 @@ public class InterfaceController implements Initializable {
                     int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
                     pane.setPrefSize(range, range);
                     Platform.runLater(() -> {
+                        fillClusterInfo(graphe);
                         startTime(Instant.now());
                         graphe.partition.getPartition().forEach((clu) -> {
                             for(int i = 0; i < clu.size(); i++){
@@ -304,7 +305,6 @@ public class InterfaceController implements Initializable {
                         fillDistributionView(graphe);
                         finishTime(Instant.now(), "Fini TableView in");
                         
-                        fillClusterInfo(graphe);
                         succeeded();
                     });
                 }
@@ -463,11 +463,10 @@ public class InterfaceController implements Initializable {
                 graphe.generateGraphe(path);
                 finishTime(Instant.now(), graphe.nbr_sommet+" "+graphe.nbr_arete +"Graphe parseé en : ");
                 
-                 
-                
                 succeeded();
                 Platform.runLater(() -> {
-                    
+                    fillGeneralInfo(graphe, 0);
+                    fillDistributionView(graphe);
                     bar.setVisible(false);
                 });
                 return null;

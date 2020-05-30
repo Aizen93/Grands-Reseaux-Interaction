@@ -82,7 +82,7 @@
             <Button id="buttons" mnemonicParsing="false" onAction="#gridVisual" prefHeight="47.0" prefWidth="252.0" text="Grid display graph" />
             <Button id="buttons" fx:id="random_algo" mnemonicParsing="false" onAction="#randomVisual" prefHeight="47.0" prefWidth="252.0" text="Random display graph" GridPane.columnIndex="1" />
             <Button id="buttons" fx:id="random_algo2" mnemonicParsing="false" onAction="#clusterRandomVisual" prefHeight="47.0" prefWidth="252.0" text="Cluster display random within" GridPane.rowIndex="1" />
-            <Button id="buttons" mnemonicParsing="false" onAction="#testAlgos" prefHeight="47.0" prefWidth="252.0" text="TEST BUTTON" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button id="buttons" mnemonicParsing="false" onAction="#testAlgos" prefHeight="47.0" prefWidth="252.0" text="Parse graph, no display" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Button id="buttons" fx:id="random_algo21" mnemonicParsing="false" onAction="#visual3D" prefHeight="47.0" prefWidth="252.0" text="3D simulation" GridPane.rowIndex="2" />
             <MenuButton id="menubut" maxHeight="25.0" minHeight="39.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="252.0" text="Shortest Path" textFill="WHITE" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
               <items>
@@ -95,8 +95,8 @@
             </MenuButton>
          </children>
       </GridPane>
-      <Circle fill="RED" layoutX="26.0" layoutY="40.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
-      <Circle layoutX="141.0" layoutY="40.0" radius="12.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fill="RED" layoutX="26.0" layoutY="40.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="28.0" />
+      <Circle layoutX="141.0" layoutY="40.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" AnchorPane.leftAnchor="129.0" AnchorPane.topAnchor="28.0">
          <fill>
             <LinearGradient endX="1.0" endY="1.0">
                <stops>
@@ -109,8 +109,8 @@
                </stops>
             </LinearGradient>
          </fill></Circle>
-      <Text layoutX="38.0" layoutY="45.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Degre max" wrappingWidth="65.13671875" />
-      <Text layoutX="153.0" layoutY="45.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Degre normal" wrappingWidth="87.13671875" />
+      <Text layoutX="46.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Degre max" wrappingWidth="65.13671875" AnchorPane.leftAnchor="45.13671875" AnchorPane.topAnchor="35.05078125" />
+      <Text layoutX="162.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Degre normal" wrappingWidth="87.13671875" AnchorPane.leftAnchor="161.13671875" AnchorPane.topAnchor="34.05078125" />
       <Accordion layoutX="4.0" layoutY="87.0" prefHeight="497.0" prefWidth="300.0" AnchorPane.bottomAnchor="264.0" AnchorPane.leftAnchor="4.0" AnchorPane.topAnchor="87.0">
         <panes>
           <TitledPane text="Graph general information">
@@ -150,14 +150,6 @@
           </TitledPane>
         </panes>
       </Accordion>
-      <StackedAreaChart fx:id="areaChart" layoutX="-1.0" layoutY="585.0" prefHeight="264.0" prefWidth="307.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
-        <xAxis>
-          <NumberAxis side="BOTTOM" upperBound="50.0" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </StackedAreaChart>
       <TabPane layoutX="307.0" layoutY="26.0" prefHeight="680.0" prefWidth="1028.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="142.0" AnchorPane.leftAnchor="307.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="26.0">
         <tabs>
           <Tab text="Visual graphic">
@@ -165,15 +157,25 @@
                   <ScrollPane fx:id="scroll2" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: gray;" />
                </content>
           </Tab>
-          <Tab disable="true" text="Not yet supported">
+          <Tab text="Degree Distribution">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackedAreaChart fx:id="areaChart" layoutX="240.0" layoutY="209.0" prefHeight="651.0" prefWidth="1028.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <xAxis>
+                            <NumberAxis side="BOTTOM" upperBound="50.0" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </StackedAreaChart>
+                     </children></AnchorPane>
             </content>
           </Tab>
         </tabs>
       </TabPane>
       <ProgressIndicator fx:id="bar" prefHeight="272.0" prefWidth="462.0" visible="false" AnchorPane.bottomAnchor="300.0" AnchorPane.leftAnchor="650.0" AnchorPane.rightAnchor="250.0" AnchorPane.topAnchor="200.0" />
-      <Text layoutX="12.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Unweighted, undericted graphs only for now" wrappingWidth="283.154296875" />
+      <Text layoutX="12.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Unweighted, undericted graphs only for now" wrappingWidth="283.154296875" AnchorPane.leftAnchor="11.154296875" AnchorPane.topAnchor="61.0" />
       <ToolBar fx:id="toolbar" minHeight="20.0" prefHeight="20.0" prefWidth="805.0" style="-fx-background-color: transparent;" AnchorPane.leftAnchor="515.0" AnchorPane.topAnchor="30.0">
          <items>
             <TextField fx:id="path_text" editable="false" minHeight="20.0" prefHeight="20.0" prefWidth="779.0" />
