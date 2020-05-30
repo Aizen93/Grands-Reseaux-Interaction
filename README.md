@@ -37,7 +37,7 @@ Here, if you click on a node (Box) you can see the adjacency list (Arcs = Edges)
 
 # 2D Visualisation of the graph :
 There are multiple algorithms and ways to render the graph on scene. On this screenshot you can see the clusters in which their nodes are randomly rendere in a certain range depending on how big the graph is.
-![Imgur](https://imgur.com/q5HAPyo.png)
+![Imgur](https://raw.githubusercontent.com/Aizen93/Grands-Reseaux-Interaction/master/TP4/Louvain/src/assets/images/Capture2.PNG)
 ![Graphe](http://sna433.weebly.com/uploads/1/3/9/3/13930242/7562313_orig.png)
 
 # Credits :
