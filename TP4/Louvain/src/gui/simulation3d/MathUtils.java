@@ -1,11 +1,19 @@
- package gui.simulation3d;
+package gui.simulation3d;
 
+import core.Graphe;
+import core.Sommet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import javafx.scene.paint.Color;
 
 /**
  *
- * @author Dub
+ * @author Dub, Oussama
  */
 public class MathUtils {
     public static final double DBL_EPSILON = 2.220446049250313E-16d; 
@@ -25,6 +33,15 @@ public class MathUtils {
     public static final double RAD_TO_DEG = 180.0d / PI;
     public static int lehmer = 1, rangeX = 0, rangeY = 0;
     public static Random rand = new Random();
+    private static boolean[] visited;
+    //keep track of nodes already included in a path
+    private static boolean[] includedInPath;
+    private static LinkedList<Integer> queue;
+    private static int numberOfNodes;
+    //to find a path you need to store the path that lead to it
+    private static List<Integer>[] pathToNode;
+    
+    
     
     public static boolean isWithinEpsilon(double a, double b, double epsilon) {
         return Math.abs(a - b) <= epsilon;
@@ -97,5 +114,76 @@ public class MathUtils {
         float g = rand.nextFloat() / 2f + 0.2f;
         float b = rand.nextFloat() / 2f + 0.2f;
         return Color.color(r,g,b);
+    }
+    
+    public static boolean BFS(ArrayList<Sommet> adj, int src, int dest, int v, int pred[], int dist[]) { 
+        queue = new LinkedList<>();
+        visited = new boolean[v]; 
+        
+        for (int i = 0; i < v; i++) { 
+            visited[i] = false; 
+            dist[i] = Integer.MAX_VALUE; 
+            pred[i] = -1; 
+        } 
+  
+        visited[src] = true; 
+        dist[src] = 0; 
+        queue.add(src); 
+  
+        // bfs Algorithm 
+        try{
+            while (!queue.isEmpty()) { 
+                int u = queue.poll(); 
+                for (int i = 0; i < adj.get(u).adjacence.length; i++) { 
+                    if (visited[adj.get(u).adjacence[i]] == false) { 
+                        visited[adj.get(u).adjacence[i]] = true; 
+                        dist[adj.get(u).adjacence[i]] = dist[u] + 1; 
+                        pred[adj.get(u).adjacence[i]] = u; 
+                        queue.add(adj.get(u).adjacence[i]); 
+
+                        // stopping condition (when we find our destination) 
+                        if (adj.get(u).adjacence[i] == dest) 
+                            return true; 
+                    } 
+                } 
+            }
+        }catch(NullPointerException ex){
+            return false;
+        }
+        return false; 
+    }
+    
+    public static ArrayList<Integer> findShortestPath(ArrayList<Sommet> adj, int dest, int s, int v){
+        int pred[] = new int[v]; 
+        int dist[] = new int[v];
+        
+        ArrayList<Integer> path = new ArrayList<>();
+        if (BFS(adj, s, dest, v, pred, dist) == false) { 
+            System.out.println("Given source and destination are not connected"); 
+            return path; 
+        } 
+        // LinkedList to store path
+        int crawl = dest; 
+        path.add(crawl); 
+        while (pred[crawl] != -1) { 
+            path.add(pred[crawl]);
+            crawl = pred[crawl];
+        } 
+  
+        // Print distance 
+        System.out.println("Shortest path length is: " + dist[dest]); 
+        return path;
+    }
+    
+    public static ArrayList<Integer> findAllShortestPaths(int source, int stop, int destination, Graphe graphe) {  
+        ArrayList<Integer> path = findShortestPath(graphe.sommets, source, stop, graphe.nbr_sommet);
+        if(path.isEmpty()) return new ArrayList<>();
+        path.remove(path.size()-1);
+        
+        ArrayList<Integer> tmp = findShortestPath(graphe.sommets, stop, destination, graphe.nbr_sommet);
+        if(tmp.isEmpty()) return new ArrayList<>();
+        path.addAll(tmp);
+        
+        return path;
     }
 }

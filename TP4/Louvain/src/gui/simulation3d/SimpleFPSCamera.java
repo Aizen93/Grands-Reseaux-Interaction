@@ -324,7 +324,7 @@ public class SimpleFPSCamera extends Parent {
 
     private void initializeCamera() {
         getCamera().setNearClip(0.1);
-        getCamera().setFarClip(10000);
+        getCamera().setFarClip(100000);
         getCamera().setFieldOfView(42);
         getCamera().setVerticalFieldOfView(true);
         root.getChildren().add(getCamera());

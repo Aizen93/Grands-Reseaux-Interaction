@@ -3,7 +3,7 @@
     -fx-background-color: black;
 }
 
-.button {
+#buttons {
     -fx-background-color: #090a0c, linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
         linear-gradient(#20262b, #191d22),
         radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
@@ -16,10 +16,45 @@
     -fx-font-size: 12px;
     -fx-padding: 10 20 10 20;
 }
-.button:hover {
+#buttons:hover {
     -fx-text-fill: lightcyan;
+    -fx-background-color: #090a0c, linear-gradient(#38424b 50%, #1f2429 20%, #191d22 50%),
+        linear-gradient(#20862b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
 }
-.button:pressed{
+#buttons:pressed{
     -fx-background-radius: 8,7,6,8;
     -fx-background-insets: 2,3,4,2;
+}
+
+#menubut {
+    -fx-background-color: #090a0c, linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+    -fx-font-family: "Arial";
+    -fx-text-fill: linear-gradient(white, #d0d0d0);
+    -fx-font-size: 13px;
+    -fx-padding: 6 20 7 80;
+}
+#menubut:hover {
+    -fx-text-fill: lightcyan;
+    -fx-background-color: #090a0c, linear-gradient(#38424b 50%, #1f2429 20%, #191d22 50%),
+        linear-gradient(#20862b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+}
+
+#menubut:pressed{
+    -fx-background-radius: 8,7,6,8;
+    -fx-background-insets: 2,3,4,2;
+}
+
+#menubut > .label {
+    -fx-text-fill: white;
+}
+#menubut > .label:hover {
+    -fx-text-fill: lightcyan;
 }

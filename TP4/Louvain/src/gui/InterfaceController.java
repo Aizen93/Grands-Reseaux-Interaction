@@ -9,6 +9,9 @@ import java.io.File;
 import java.net.URL;
 import java.time.Instant;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
@@ -34,6 +37,10 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.animation.*;
+import javafx.scene.Group;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 
 /**
  * FXML Controller class
@@ -57,21 +64,27 @@ public class InterfaceController implements Initializable {
     @FXML
     Text graph_info;
     @FXML
+    TextField path_text;
+    @FXML
     TableView<DegreDistribution> distribution;
     @FXML
     TableColumn<Integer, Integer> degre_view, total_view;
+    @FXML
+    ToolBar toolbar;
     //-------------------------------------------------------------
     
     /**
      * General variables needed
      */
-    Pane pane;
-    Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 11);
-    private Random rand = new Random();
+    private Pane pane;
+    private final Font arcade = Font.loadFont("file:src/assets/images/arcade.ttf", 11);
+    private final Random rand = new Random();
     private final ObservableList<DegreDistribution> distribution_model = FXCollections.observableArrayList();
     private final DialogPopUp dialog = new DialogPopUp();
+    private final Group short_path = new Group();
     private int rangeX = 0, rangeY = 0;
-    Instant start;
+    private Instant start;
+    private Graphe graphe;
     //-------------------------------------------------------------
     
     
@@ -158,6 +171,7 @@ public class InterfaceController implements Initializable {
         }
         cluster_info.setContent(flow);
         flow.setPrefSize(cluster_info.getWidth()-5, cluster_info.getHeight());
+        path_text.setText("Best modularity : " + graphe.partition.getModularite());
     }
     
     private String getPath(){
@@ -179,24 +193,26 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 Instant start = Instant.now();
-                Graphe graphe = new Graphe();
-                graphe.generateGraphe(path);
-                succeeded();
-                int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
-                pane.setPrefSize(range, range);
-                Platform.runLater(() -> {
-                    graphe.getListSommets().forEach((sommet) -> {
-                        int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
-                        int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
-                        buildNodes(graphe, sommet, x, y, Color.GREEN);
+                graphe = new Graphe();
+                if(graphe.generateGraphe(path) == -1) this.cancel();
+                if(!this.isCancelled()){
+                    int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
+                    pane.setPrefSize(range, range);
+                    Platform.runLater(() -> {
+                        graphe.getListSommets().forEach((sommet) -> {
+                            int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                            int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                            buildNodes(graphe, sommet, x, y, Color.GREEN);
+                        });
+                        buildArcs(graphe);
+                        Instant finish = Instant.now();
+                        long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
+                        fillGeneralInfo(graphe, timeElapsed);
+                        fillDistributionView(graphe);
+                        succeeded();
                     });
-                    buildArcs(graphe);
-                    Instant finish = Instant.now();
-                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
-                    fillGeneralInfo(graphe, timeElapsed);
-                    fillDistributionView(graphe);
-                    bar.setVisible(false);
-                });
+                }
+                bar.setVisible(false);
                 return null;
             }
         };
@@ -214,30 +230,31 @@ public class InterfaceController implements Initializable {
             @Override 
             public Void call() {
                 Instant start = Instant.now();
-                Graphe graphe = new Graphe();
-                graphe.generateGraphe(path);
-                succeeded();
-                rangeX = (graphe.nbr_sommet < 200 ? 200 : graphe.nbr_sommet/2);
-                Platform.runLater(() -> {
-                    int x = 10;
-                    rangeY = 10;
-                    for (Sommet sommet : graphe.getListSommets()) {
-                        buildNodes(graphe, sommet, x, rangeY, Color.GREEN);
-                        x += 40;
-                        if(x >= rangeX){
-                            x = 10;
-                            rangeY += 40;
+                graphe = new Graphe();
+                if(graphe.generateGraphe(path) == -1) this.cancel();
+                if(!this.isCancelled()){
+                    rangeX = (graphe.nbr_sommet < 200 ? 200 : graphe.nbr_sommet/2);
+                    Platform.runLater(() -> {
+                        int x = 10;
+                        rangeY = 10;
+                        for (Sommet sommet : graphe.getListSommets()) {
+                            buildNodes(graphe, sommet, x, rangeY, Color.GREEN);
+                            x += 40;
+                            if(x >= rangeX){
+                                x = 10;
+                                rangeY += 40;
+                            }
                         }
-                    }
-                    pane.setPrefSize(rangeX+10, rangeY+10);
-                    buildArcs(graphe);
-                    Instant finish = Instant.now();
-                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
-                    fillGeneralInfo(graphe, timeElapsed);
-                    fillDistributionView(graphe);
-                    bar.setVisible(false);
-                });
-                
+                        pane.setPrefSize(rangeX+10, rangeY+10);
+                        buildArcs(graphe);
+                        Instant finish = Instant.now();
+                        long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
+                        fillGeneralInfo(graphe, timeElapsed);
+                        fillDistributionView(graphe);
+                        succeeded();
+                    });
+                }
+                bar.setVisible(false);
                 return null;
             }
         };
@@ -254,41 +271,202 @@ public class InterfaceController implements Initializable {
         Task task = new Task<Void>() {
             @Override 
             public Void call() {
+                Instant overall = Instant.now();
                 startTime(Instant.now());
-                Graphe graphe = new Graphe();
+                graphe = new Graphe();
                 graphe.generateGraphe(path);
-                graphe.calculateLouvain("src/assets/ClusterLouvain.clu");
-                
-                finishTime(Instant.now(), "Fini graphe in");
-                succeeded();
-                int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
-                pane.setPrefSize(range, range);
-                Platform.runLater(() -> {
-                    fillClusterInfo(graphe);
-                    
-                    startTime(Instant.now());
-                    graphe.partition.getPartition().forEach((clu) -> {
-                        for(int i = 0; i < clu.size(); i++){
-                            int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
-                            int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
-                            buildNodes(graphe, graphe.getSommet(clu.getNodeID(i)), x, y, clu.getColor());
-                        }
+                if(graphe.generateGraphe(path) == -1) this.cancel();
+                if(!this.isCancelled()){
+                    graphe.calculateLouvain("src/assets/ClusterLouvain.clu");
+                    finishTime(Instant.now(), "Fini graphe in");
+                    int range = (graphe.nbr_sommet < 700 ? 700 : graphe.nbr_sommet) + graphe.nbr_sommet / 2;
+                    pane.setPrefSize(range, range);
+                    Platform.runLater(() -> {
+                        startTime(Instant.now());
+                        graphe.partition.getPartition().forEach((clu) -> {
+                            for(int i = 0; i < clu.size(); i++){
+                                int x = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                                int y = MathUtils.lehmerRandom(5, range - 5, rand.nextInt());
+                                buildNodes(graphe, graphe.getSommet(clu.getNodeID(i)), x, y, clu.getColor());
+                            }
+                        });
+                        finishTime(Instant.now(), "Fini buildnodes in");
+
+                        startTime(Instant.now());
+                        buildArcs(graphe);
+                        finishTime(Instant.now(), "Fini ARCS in");
+
+                        Instant finish = Instant.now();
+                        long timeElapsed = Duration.between(overall, finish).toMillis();  //in millis
+                        fillGeneralInfo(graphe, timeElapsed);
+
+                        startTime(Instant.now());
+                        fillDistributionView(graphe);
+                        finishTime(Instant.now(), "Fini TableView in");
                         
+                        fillClusterInfo(graphe);
+                        succeeded();
                     });
-                    finishTime(Instant.now(), "Fini buildnodes in");
-                    
-                    startTime(Instant.now());
-                    buildArcs(graphe);
-                    finishTime(Instant.now(), "Fini ARCS in");
-                    
-                    Instant finish = Instant.now();
-                    long timeElapsed = Duration.between(start, finish).toMillis();  //in millis
-                    fillGeneralInfo(graphe, timeElapsed);
-                    System.out.println("Fini general info");
-                    
-                    startTime(Instant.now());
-                    fillDistributionView(graphe);
-                    finishTime(Instant.now(), "Fini TableView in");
+                }
+                bar.setVisible(false);
+                return null;
+            }
+        };
+        bar.progressProperty().bind(task.progressProperty());
+        new Thread(task).start();
+    }
+    
+    @FXML
+    private void visual3D(ActionEvent event){
+        graphe = new Graphe();
+        graphe.generateGraphe(getPath());
+        World world = new World(graphe);
+        world.buildWorld();
+        //world.addLight();
+    }
+    
+    public void animateEdgeBetween(Sommet som1, Sommet som2){
+        Line line = new Line(som1.getCenterX(), som1.getCenterY(), som2.getCenterX(), som2.getCenterY());
+        line.getStrokeDashArray().setAll(25d, 20d, 10d, 20d);
+        line.setStrokeWidth(6);
+        short_path.getChildren().add(line);
+        
+        som1.toFront();
+        som2.toFront();
+        double maxOffset = line.getStrokeDashArray().stream().reduce(0d, (a, b) -> a - b);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        javafx.util.Duration.ZERO, 
+                        new KeyValue(
+                                line.strokeDashOffsetProperty(), 
+                                0, 
+                                Interpolator.LINEAR
+                        )
+                ),
+                new KeyFrame(
+                        javafx.util.Duration.seconds(1), 
+                        new KeyValue(
+                                line.strokeDashOffsetProperty(), 
+                                maxOffset, 
+                                Interpolator.LINEAR
+                        )
+                )
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+    }
+    
+    @FXML
+    private void drawShortestPath(ActionEvent event) {
+        if(graphe != null){  
+            short_path.getChildren().clear();
+            pane.getChildren().remove(short_path);
+            pane.getChildren().add(short_path);
+            if(graphe != null){
+                int[] nodes = DialogPopUp.getStartEndNodes(graphe, false);
+                if(nodes[0] == -1) return;
+                bar.setVisible(true);
+                Task task = new Task<Void>() {
+                @Override 
+                public Void call() {
+                    ArrayList<Integer> path = MathUtils.findShortestPath(graphe.sommets, nodes[0], nodes[2], graphe.nbr_sommet);
+                    Platform.runLater(() -> {
+                        if(!path.isEmpty()){
+                            String s = "";
+                            for (int i = 0; i < path.size() - 1; i++) {
+                                s += path.get(i)+" --> ";
+                                animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+                            }
+                            s += path.get(path.size()-1);
+                            toolbar.setVisible(true);
+                            toolbar.toFront();
+                            path_text.setText("Shortest path: " + s);
+                        }else{
+                            dialog.showMessage("- Given source and destination nodes are not connected\n"
+                                + "- Le sommet de départ et d'arrivé ne sont pas connectées");
+                        }
+                        bar.setVisible(false);
+                    });
+                    succeeded();
+                    System.out.println("FINI");
+                    return null;
+                    }
+                };
+                bar.progressProperty().bind(task.progressProperty());
+                new Thread(task).start();
+
+            }
+        }else{
+            dialog.showMessage("Nothing imported yet, Please import a graph "
+                    + "using one of the display buttons");
+        }
+    } 
+    
+    @FXML
+    private void drawShortestPathThroughStop(ActionEvent event) {
+        if(graphe != null){  
+            short_path.getChildren().clear();
+            pane.getChildren().remove(short_path);
+            pane.getChildren().add(short_path);
+            int[] nodes = dialog.getStartEndNodes(graphe, true);
+            if(nodes[0] == -1) return;
+            if(graphe != null){
+                bar.setVisible(true);
+                Task task = new Task<Void>() {
+                @Override 
+                public Void call() {
+                    ArrayList<Integer> path = MathUtils.findAllShortestPaths(nodes[0], nodes[1], nodes[2], graphe);
+                    Platform.runLater(() -> {
+                        if(!path.isEmpty()){
+                            String s = ""; 
+                            for (int i = 0; i < path.size() - 1; i++) {
+                                s += (path.get(i) == nodes[1] ? "["+nodes[1]+"]" : ""+path.get(i))+" --> ";
+                                animateEdgeBetween(graphe.getSommet(path.get(i)), graphe.getSommet(path.get(i+1)));
+                            }
+                            s += path.get(path.size()-1);
+                            toolbar.setVisible(true);
+                            toolbar.toFront();
+                            path_text.setText("Shortest path: " + s);
+                        }else{
+                            dialog.showMessage("- Given source and destination nodes are not connected\n"
+                                + "- Le sommet de départ et d'arrivé ne sont pas connectées");
+                        }
+                        bar.setVisible(false);
+                    });
+                    succeeded();
+                    System.out.println("FINI");
+                    return null;
+                    }
+                };
+                bar.progressProperty().bind(task.progressProperty());
+                new Thread(task).start();
+
+            }
+        }else{
+            dialog.showMessage("Nothing imported yet, Please import a graph "
+                    + "using one of the display buttons");
+        }
+    }
+    
+    @FXML
+    private void testAlgos(ActionEvent event){
+        pane.getChildren().clear();
+        MathUtils.lehmer = 0;
+        String path = getPath();
+        bar.setVisible(true);
+        Task task = new Task<Void>() {
+            @Override 
+            public Void call() {
+                startTime(Instant.now());
+                graphe = new Graphe();
+                graphe.generateGraphe(path);
+                finishTime(Instant.now(), graphe.nbr_sommet+" "+graphe.nbr_arete +"Graphe parseé en : ");
+                
+                 
+                
+                succeeded();
+                Platform.runLater(() -> {
                     
                     bar.setVisible(false);
                 });
@@ -297,21 +475,6 @@ public class InterfaceController implements Initializable {
         };
         bar.progressProperty().bind(task.progressProperty());
         new Thread(task).start();
-    }
-    
-    
-    @FXML
-    private void visual3D(ActionEvent event){
-        Graphe graphe = new Graphe();
-        graphe.generateGraphe(getPath());
-        World world = new World(graphe);
-        world.buildWorld();
-        //world.addLight();
-    }
-    
-    @FXML
-    private void testAlgos(ActionEvent event){
-        
     }
     
     @FXML
@@ -324,10 +487,21 @@ public class InterfaceController implements Initializable {
         Platform.exit();
     }
     
+    /**
+     * This method is used for debugging to catch starting time of an execution
+     * to calculate time
+     * @param start 
+     */
     private void startTime(Instant start){
         this.start = start;
     }
     
+    /**
+     * Used for debugging to catch finish time of an execution and then draw a message
+     * to calculate time
+     * @param finish
+     * @param message 
+     */
     private void finishTime(Instant finish, String message){
         long timeElapsed = Duration.between(this.start, finish).toMillis();
         System.out.println(message + " : "+timeElapsed + " ms");
@@ -348,7 +522,6 @@ public class InterfaceController implements Initializable {
 
             ZoomableScrollPane sc = new ZoomableScrollPane(pane);
             scroll2.setContent(sc.outerNode(sc.zoomNode));
-            
         } );
         delay.play();
     }    

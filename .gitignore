@@ -1,9 +1,12 @@
 .DS_Store
 src/gui
 src/*.o
-.class
+*.class
 .properties
-.mf
+*.mf
+*.txt
+*.clu
+*.tar
 
 target/
 bin/
@@ -25,10 +28,9 @@ bin/
 *.xml
 
 ### NetBeans ###
-nbproject/private/
+nbproject/
 build/
 nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-/TP2/Betweenness/nbproject/private/

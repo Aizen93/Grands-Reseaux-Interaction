@@ -1,5 +1,6 @@
 package gui;
 
+import core.Graphe;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,11 +39,11 @@ public class DialogPopUp {
     }
     
     /**
-     * Afiiche un message d'erreur avec l'exception catché a l'utilisateur
+     * Affiche un message d'erreur avec l'exception catché a l'utilisateur
      * @param ex
      * @param context 
      */
-    public void showAlert(Exception ex, String context){
+    public static void showAlert(Exception ex, String context){
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("Alert, an exception catched somewhere");
@@ -78,7 +79,7 @@ public class DialogPopUp {
      * Affiche un message a l'utilisateur pour l'informer
      * @param m 
      */
-    public void showMessage(String m){
+    public static void showMessage(String m){
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Error Message");
         alert.setHeaderText(null);
@@ -100,11 +101,102 @@ public class DialogPopUp {
      * @param mainAnchor
      * @return un fichier
      */
-    public File openFile(AnchorPane mainAnchor){
+    public static File openFile(AnchorPane mainAnchor){
         final FileChooser fileChooser = new FileChooser();
         configureFileChooser(fileChooser);
         File file = fileChooser.showOpenDialog(mainAnchor.getScene().getWindow());
         return file;
+    }
+    
+    /**
+     * renvoie les coordonnées d'un cube et sa taille
+     * @param graphe
+     * @param stop
+     * @return tableau de int (n, x,y,z, width)
+     */
+    public static int[] getStartEndNodes(Graphe graphe, boolean stop){
+        int[] path = new int[]{-1, -1, -1};
+        Dialog dialog = new Dialog<>();
+        dialog.setTitle("Shortest Path between node A and a node B !");
+        ButtonType obuttonType = new ButtonType("OK");
+        ButtonType cbuttonType = new ButtonType("Cancel");
+        dialog.getDialogPane().getButtonTypes().addAll(obuttonType, cbuttonType);
+        
+        final Button btOk = (Button) dialog.getDialogPane().lookupButton(obuttonType);
+        final Button btCancel = (Button) dialog.getDialogPane().lookupButton(cbuttonType);
+        Group groupe = new Group();
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(20, 150, 10, 10));
+        
+        Text m = new Text();
+        m.setFill(Color.RED);
+        m.setFont(Font.loadFont("file:src/assets/images/arcade.ttf", 10));
+        
+        TextField start_node = new TextField();
+        start_node.setPromptText("Source node ID...");
+        
+        TextField stop_node = new TextField();
+        stop_node.setPromptText("Stop node ID...");
+        if(!stop) stop_node.setDisable(true);
+        
+        TextField dest_node = new TextField();
+        dest_node.setPromptText("Stop node ID...");
+        
+        gridPane.add(new Label("From node"), 0, 0);
+        gridPane.add(start_node, 1, 0);
+        gridPane.add(new Label("Passing by node"), 2, 0);
+        gridPane.add(stop_node, 3, 0);
+        gridPane.add(new Label("To node"), 4, 0);
+        gridPane.add(dest_node, 5, 0);
+        
+        groupe.getChildren().addAll(m, gridPane);
+        
+        btOk.addEventFilter(ActionEvent.ACTION, event -> {
+            try{
+                int node1, node2, node3;
+                node1 = Integer.parseInt(start_node.getText());
+                if(stop) node2 = Integer.parseInt(stop_node.getText());
+                else node2 = 0;
+                node3 = Integer.parseInt(dest_node.getText());
+            
+                if(node1 < 0 || node2 < 0 || node3 < 0){
+                    m.setText("One of the textfields are negative value\nUn des Text field est negative!");
+                    event.consume();
+                } else if(graphe.getSommet(node1) == null){
+                    m.setText("Start node doesn't exist !");
+                    event.consume();
+                } else if(graphe.getSommet(node2) == null){
+                    m.setText("Stop node doesn't exist !");
+                    event.consume();
+                } else if(graphe.getSommet(node3) == null){
+                    m.setText("Destination node doesn't exist !");
+                    event.consume();
+                } else if(node1 == node2 || node2 == node3 || node1 == node3){
+                    m.setText("There is no path from a node to it self !");
+                    event.consume();
+                }else{
+                    path[0] = node1;
+                    path[1] = node2;
+                    path[2] = node3;
+                   dialog.close(); 
+                }
+            }catch(NumberFormatException e){
+                m.setText("Bad format of one of the textfields below !\n"
+                        + "Un des textFields est mal ecrit !");
+                event.consume();
+            }
+        });
+        
+        btCancel.addEventFilter(ActionEvent.ACTION, event -> {
+            dialog.close();
+        });
+        
+        dialog.getDialogPane().setContent(groupe);
+        dialog.showAndWait();
+        
+        return path;
     }
     
 }
